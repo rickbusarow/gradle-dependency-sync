@@ -1,6 +1,27 @@
-___
+## What does it do?
+
+This Gradle plugin will sync dependency declarations between
+a `build.gradle` or `build.gradle.kts` file and
+[Gradle's new .toml file.](https://docs.gradle.org/nightly/userguide/platforms.html#sub:central-declaration-of-dependencies)
+
+This is useful if you'd like to utilize IntelliJ/Android Studio's built in dependency update warnings,
+or if you're using [Dependabot](https://github.com/dependabot/dependabot-core).  Both of these tools only support
+dependencies which are defined as string literals in a Gradle build file.
+
+If a dependency is declared in the build file but not in .toml,
+DependencySync will automatically create a new declaration in the toml file.
+
+If the dependency is declared in both files, but with different versions,
+DependencySync will replace the older version with the newer one.
+
+If a toml dependency is declared using a version from the `[versions]` section via `version.ref = "my-dependency-version"`,
+then DependencySync will update the declaration for `my-dependency-version` instead.
+It will then look for any dependencies in the build file which may need to be updated in order to keep both files in sync.
 
 ## Config
+
+First, create an empty module in your project, such as `:dependency-sync`.  Add this to your root project's `settings.gradle[.kts]`
+Do not add this module as a dependency to any other module.
 
 ```kotlin
 // settings.gradle.kts
@@ -10,7 +31,14 @@ pluginManagement {
     gradlePluginPortal()
   }
 }
+
+...
+
+include(":dependency-sync")
 ```
+Now add a `build.gradle[.kts]` file.  Declare every single external dependency for the entire project here,
+using the `dependencySync` configuration.  This configuration doesn't do anything,
+but it's necessary for the IDE and Dependabot to do their parsing.
 
 ```kotlin
 // ./dependency-sync/build.gradle.kts
@@ -20,8 +48,8 @@ plugins {
 }
 
 dependencySync {
-  gradleBuildFile.set(buildFile.path)
-  typeSafeFile.set("${rootDir}/gradle/libs.versions.toml")
+  gradleBuildFile.set(buildFile.path)  // optional -- default is just the build file of the applied module
+  typeSafeFile.set("${rootDir}/gradle/libs.versions.toml") // optional -- this path is the default
 }
 
 dependencies {
@@ -34,7 +62,9 @@ dependencies {
 }
 ```
 
-## Tasks
+## Task
+
+This task is very fast.  You can obviously just invoke it manually, but you can also try invoking it as part of your CI on Dependabot pull requests.
 
 ``` shell
 ./gradlew dependencySync
