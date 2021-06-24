@@ -47,7 +47,7 @@ gradlePlugin {
 pluginBundle {
   website = "https://github.com/RBusarow/gradle-dependency-sync"
   vcsUrl = "https://github.com/RBusarow/gradle-dependency-sync"
-  description = "Fast dependency graph validation for gradle"
+  description = "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
   tags = listOf("dependencies", "dependabot")
 
   plugins {
