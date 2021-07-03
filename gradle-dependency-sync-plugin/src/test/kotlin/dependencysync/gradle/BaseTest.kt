@@ -15,13 +15,8 @@
 
 package dependencysync.gradle
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.TypeSpec
 import hermit.test.junit.HermitJUnit5
-import hermit.test.resets
 import io.kotest.matchers.collections.shouldContain
-import org.gradle.initialization.ProjectSpec
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -29,8 +24,21 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInfo
 import java.io.File
-import java.nio.file.Path
 import io.kotest.matchers.shouldBe as kotestShouldBe
+
+public val DEFAULT_GRADLE_VERSION: String = System
+  .getProperty("modulecheck.gradleVersion", "7.0.2")
+  /*
+  * The GitHub Actions test matrix parses "7.0" into an Int and passes in a command line argument of "7".
+  * That version doesn't resolve.  So if the String doesn't contain a period, just append ".0"
+  */
+  .let { prop ->
+    if (prop.contains('.')) prop else "$prop.0"
+  }
+public val DEFAULT_KOTLIN_VERSION: String =
+  System.getProperty("modulecheck.kotlinVersion", "1.5.10")
+public val DEFAULT_AGP_VERSION: String =
+  System.getProperty("modulecheck.agpVersion", "7.0.0-beta02")
 
 abstract class BaseTest : HermitJUnit5() {
 
