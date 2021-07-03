@@ -23,6 +23,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import javax.inject.Inject
 
+@Suppress("UnnecessaryAbstractClass") // for Gradle
 public abstract class DependencySyncExtension @Inject constructor(objects: ObjectFactory) {
 
   public val gradleBuildFile: Property<String> = objects.property(String::class.java)
@@ -39,7 +40,6 @@ public fun Project.dependencySync(config: DependencySyncExtension.() -> Unit) {
 public class DependencySyncPlugin : Plugin<Project> {
 
   override fun apply(target: Project) {
-
     val settings = target.extensions.create<DependencySyncExtension>(EXTENSION_NAME)
 
     target.configurations.create(CONFIGURATION_NAME)
@@ -53,6 +53,3 @@ public class DependencySyncPlugin : Plugin<Project> {
     const val EXTENSION_NAME: String = "dependencySync"
   }
 }
-
-
-

@@ -30,11 +30,10 @@ internal sealed class TomlEntry : Comparable<TomlEntry> {
 
 internal data class Dep(val group: String, val name: String, val version: String) {
   override fun toString(): String {
-    return "${group}:${name}:${version}"
+    return "$group:$name:$version"
   }
 
   fun toSimpleToml(): TomlEntry.Simple {
-
     val nameSegmentList = name.split("-", ".")
     val groupSegmentList = group.split("-", ".")
       .filterNot { it in excludes }
@@ -64,7 +63,9 @@ internal data class Dep(val group: String, val name: String, val version: String
 }
 
 internal data class TomlVersion(
-  val originalText: String, val defName: String, val version: String
+  val originalText: String,
+  val defName: String,
+  val version: String
 )
 
 private fun <T : Any> Iterable<T>.removeAdjacent(): List<T> {

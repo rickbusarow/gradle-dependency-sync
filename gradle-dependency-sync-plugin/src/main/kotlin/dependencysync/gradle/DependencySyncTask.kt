@@ -14,7 +14,6 @@ public open class DependencySyncTask @Inject constructor(
 
   @TaskAction
   public fun action() {
-
     val gradleBuildFile = File(settings.gradleBuildFile.get())
     val tomlFile = File(settings.typeSafeFile.get())
 
@@ -120,7 +119,6 @@ public open class DependencySyncTask @Inject constructor(
           ?: throw GradleException("Dependency `$tomlDep` is declared in $tomlFile but not in $gradleBuildFile")
 
         if (ktsDep.version != tomlDep.version && entry is TomlEntry.Complex) {
-
           val newer = maxOf(ktsDep.version, tomlDep.version)
           val older = minOf(ktsDep.version, tomlDep.version)
 
@@ -135,7 +133,6 @@ public open class DependencySyncTask @Inject constructor(
         }
 
         if (ktsDep.version > tomlDep.version) {
-
           val originalText = when (entry) {
             is TomlEntry.Complex -> entry.versionDef.originalText
             else -> entry.originalText
