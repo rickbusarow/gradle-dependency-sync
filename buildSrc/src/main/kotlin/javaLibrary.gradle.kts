@@ -21,8 +21,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   kotlin("jvm")
 }
+kotlin {
+  explicitApi()
+}
+tasks.withType<KotlinCompile>()
+  .configureEach {
 
-common()
+    this.kotlinOptions {
+
+      // disabled due to different Kotlin versions in the classpath
+      this.allWarningsAsErrors = false
+
+      this.jvmTarget = "1.8"
+    }
+  }
 
 tasks.withType<Test> {
   useJUnitPlatform()
