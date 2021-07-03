@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+      - release/*
+
+jobs:
+
+  tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # cancel previous jobs
+      - uses : khan/pull-request-workflow-cancel@1.0.0
+        with :
+          workflows : "ci.yml"
+        env :
+          GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 14
+
+      # formats all Kotlin src files
+      - name: ktlint format
+        run: ./gradlew formatKotlin
+
+      # If ktlint generated changes, commit and push those changes.
+      - name: commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply ktlint format
+          commit_options: '--no-verify --signoff'
+          push_options: '--force' # necessary to push if the branch is protected
+
+      - name : detekt
+        run : ./gradlew detekt
+
+      - name: all tests
+        run: ./gradlew test
+
+      - name: Unit test results
+        uses: mikepenz/action-junit-report@v1
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: '**/build/**/TEST-*.xml'
+          check_name: Unit Test Results
