@@ -21,13 +21,17 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass") // for Gradle
-public abstract class DependencySyncExtension @Inject constructor(objects: ObjectFactory) {
+public abstract class DependencySyncExtension @Inject constructor(
+  target: Project,
+  objects: ObjectFactory
+) {
 
   public val gradleBuildFile: Property<String> = objects.property(String::class.java)
-    .convention("./build.gradle.kts")
+    .convention(target.buildFile.path)
 
   public val typeSafeFile: Property<String> = objects.property(String::class.java)
     .convention("./gradle/libs.versions.toml")

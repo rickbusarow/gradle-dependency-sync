@@ -9,8 +9,17 @@ import javax.inject.Inject
 
 public open class DependencySyncTask @Inject constructor(
   @Input
-  public  val settings: DependencySyncExtension
+  public val settings: DependencySyncExtension
 ) : DefaultTask() {
+
+  internal companion object {
+
+    val versionReg = """((\S*)\s*=\s*"([^"]*)"\s*)""".toRegex()
+
+    val simpleReg = """((\S*)\s*=\s*"([^":]*):([^":]*):([^"]*)")""".toRegex()
+    val complexReg =
+      """((\S*)\s*=\s*\{\s*module\s*=\s*"([^:]*):(\S*)"\s*,\s*version\.ref\s*=\s*"([^"]*)"\s*\}\s*)""".toRegex()
+  }
 
   @TaskAction
   public fun action() {
@@ -19,72 +28,31 @@ public open class DependencySyncTask @Inject constructor(
 
     var buildText = gradleBuildFile.readText()
 
-    val versionsBlockReg = """^[\s\S]*\[versions\]([\S\s]*)\[libraries\]""".toRegex()
-    val librariesBlockReg = """^[\s\S]*\[libraries\]([\S\s]*)\[\S*\]""".toRegex()
-    val versionReg = """((\S*)\s*=\s*"([^"]*)"\s*)""".toRegex()
-    val simpleReg = """((\S*)\s*=\s*"([^":]*):([^":]*):([^"]*)")""".toRegex()
-    val complexReg =
-      """((\S*)\s*=\s*\{\s*module\s*=\s*"([^:]*):(\S*)"\s*,\s*version\.ref\s*=\s*"([^"]*)"\s*\}\s*)""".toRegex()
+    val dependencySyncConfig = project.configurations
+      .getByName(DependencySyncPlugin.CONFIGURATION_NAME)
 
-    val dummyConfig = project.configurations.getByName(DependencySyncPlugin.CONFIGURATION_NAME)
+    val parsedBuildFile = ParsedBuildFile.create(dependencySyncConfig)
 
-    val buildFileDeps = dummyConfig.dependencies
-      .filter { it.version != null }
-      .map { Dep(it.group!!, it.name, it.version!!) }
-      .groupBy { it.group + it.name }
-      .values
-      .map { depsByArtifact -> depsByArtifact.maxByOrNull { it.version }!! }
+    val parsedToml = ParsedToml.create(tomlFile)
 
-    val thisFileDeps = buildFileDeps
-      .groupBy { it.group }
-      .map { (group, lst) ->
-        group to lst.associateBy { it.name }
-      }
-      .toMap()
+    var tomlText = parsedToml.text
+    val tomlLibrariesBlock = parsedToml.librariesBlock
+    val tomlEntries = parsedToml.entries
 
-    var tomlText = tomlFile.readText()
+    buildText = addMissingBuildFileDeps(tomlEntries, parsedBuildFile, buildText)
 
-    val versionBlock = versionsBlockReg.find(tomlText)?.destructured?.component1() ?: ""
-    val librariesBlock = librariesBlockReg.find(tomlText)?.destructured?.component1() ?: ""
+    val updatedparsedBuildFile = ParsedBuildFile.create(dependencySyncConfig)
 
-    val tomlVersions = versionReg.findAll(versionBlock)
-      .map { it.destructured }
-      .map { (wholeString, name, version) ->
-        TomlVersion(wholeString, name, version)
-      }
-      .associateBy { it.defName }
+    val buildFileDeps = updatedparsedBuildFile.deps
+    val groupedBuildFileDeps = updatedparsedBuildFile.groupedDeps
 
-    val complexEntries = complexReg.findAll(librariesBlock)
-      .toList()
-      .map { it.destructured }
-      .map { (line, defName, group, name, versionRef) ->
-        val versionDef = tomlVersions.getValue(versionRef)
-        val version = versionDef.version
-
-        TomlEntry.Complex(
-          originalText = line,
-          defName = defName,
-          versionDef = versionDef,
-          dep = Dep(group, name, version)
-        )
-      }
-
-    val simpleEntries = simpleReg.findAll(librariesBlock)
-      .map { it.destructured }
-      .map { (line, defName, group, name, version) ->
-        TomlEntry.Simple(line, defName, Dep(group, name, version))
-      }
-      .toList()
-
-    val tomlEntries = (complexEntries + simpleEntries).toMutableList()
-
-    val leftovers = buildFileDeps
+    val missingFromToml = buildFileDeps
       .filterNot { buildFileDep ->
         tomlEntries.any { it.dep.group == buildFileDep.group && it.dep.name == buildFileDep.name }
       }
       .map { it.toSimpleToml() }
 
-    tomlEntries.addAll(leftovers)
+    tomlEntries.addAll(missingFromToml)
 
     val grouped = tomlEntries.groupBy {
       it.dep
@@ -107,16 +75,23 @@ public open class DependencySyncTask @Inject constructor(
       .sorted()
       .joinToString("\n", "\n", "\n")
 
-    tomlText = tomlText.replace(librariesBlock, newToml)
+    tomlText = tomlText.replace(tomlLibrariesBlock, newToml)
 
     tomlEntries
+      .filterNot {
+        val tomlDep = it.dep
+
+        val ktsDep = groupedBuildFileDeps[tomlDep.group]?.get(tomlDep.name)
+
+        ktsDep != null
+      }
       .forEach { entry ->
 
         val tomlDep = entry.dep
 
-        val ktsDep = thisFileDeps[tomlDep.group]
+        val ktsDep = groupedBuildFileDeps.get(tomlDep.group)
           ?.get(tomlDep.name)
-          ?: throw GradleException("Dependency `$tomlDep` is declared in $tomlFile but not in $gradleBuildFile")
+          ?: return@forEach
 
         if (ktsDep.version != tomlDep.version && entry is TomlEntry.Complex) {
           val newer = maxOf(ktsDep.version, tomlDep.version)
@@ -152,5 +127,43 @@ public open class DependencySyncTask @Inject constructor(
 
     gradleBuildFile.writeText(buildText)
     tomlFile.writeText(tomlText)
+  }
+
+  private fun addMissingBuildFileDeps(
+    tomlEntries: MutableList<TomlEntry>,
+    parsedBuildFile: ParsedBuildFile,
+    originalBuildText: String
+  ): String {
+    var buildText = originalBuildText
+
+    val groupedBuildFileDeps = parsedBuildFile.groupedDeps
+
+    val (missingFromBuildFile, inBuildFile) = tomlEntries
+      .map { it.dep }
+      .partition { dep -> groupedBuildFileDeps[dep.group]?.get(dep.name) == null }
+
+    val lastBuildDep = inBuildFile.lastOrNull()
+      ?: throw GradleException("Cannot find any `dependencySync` dependencies in build file")
+
+    val lastBuildDepRegex = """(.*dependencySync.*['"])$lastBuildDep(['"].*)""".toRegex()
+
+    val lastBuildDepResult = buildText.lines()
+      .asSequence()
+      .mapNotNull { lastBuildDepRegex.find(it) }
+      .firstOrNull()
+      ?: throw GradleException(
+        "Cannot find a dependency declaration for $lastBuildDep, " +
+          "using the regex ${lastBuildDepRegex.pattern}, in build file"
+      )
+
+    val (prefix, suffix) = lastBuildDepResult.destructured
+
+    missingFromBuildFile.forEach { missingDep ->
+      val new = """$prefix$missingDep$suffix
+          |$prefix$lastBuildDep$suffix
+        """.trimMargin()
+      buildText = buildText.replace(lastBuildDepResult.value, new)
+    }
+    return buildText
   }
 }
