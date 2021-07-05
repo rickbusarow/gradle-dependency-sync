@@ -44,7 +44,7 @@ but it's necessary for the IDE and Dependabot to do their parsing.
 // ./dependency-sync/build.gradle.kts
 
 plugins {
-  id("com.rickbusarow.gradle-dependency-sync") version "0.10.0"
+  id("com.rickbusarow.gradle-dependency-sync") version "0.11.0"
 }
 
 dependencySync {
