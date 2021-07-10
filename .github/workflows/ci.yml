@@ -30,7 +30,7 @@ jobs:
 
       # formats all Kotlin src files
       - name: ktlint format
-        run: ./gradlew formatKotlin
+        run: ./gradlew ktlintformat
 
       # If ktlint generated changes, commit and push those changes.
       - name: commit changes

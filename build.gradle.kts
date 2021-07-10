@@ -28,7 +28,7 @@ buildscript {
     classpath("com.android.tools.build:gradle:4.2.2")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.20")
     classpath("org.jetbrains.kotlinx:kotlinx-knit:0.3.0")
-    classpath("org.jmailen.gradle:kotlinter-gradle:3.4.5")
+    classpath("org.jlleitschuh.gradle:ktlint-gradle:10.1.0")
   }
 }
 
@@ -118,19 +118,19 @@ tasks.named(
 }
 
 allprojects {
-  apply(plugin = "org.jmailen.kotlinter")
 
-  extensions.configure<org.jmailen.gradle.kotlinter.KotlinterExtension> {
+  apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
-    ignoreFailures = false
-    reporters = arrayOf("checkstyle", "plain")
-    experimentalRules = true
-    disabledRules = arrayOf(
-      "no-multi-spaces",
-      "no-wildcard-imports",
-      "max-line-length", // manually formatting still does this, and KTLint will still wrap long chains when possible
-      "filename", // same as Detekt's MatchingDeclarationName, except Detekt's version can be suppressed and this can't
-      "experimental:argument-list-wrapping" // doesn't work half the time
+  configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    debug.set(false)
+
+    disabledRules.set(
+      setOf(
+        "no-wildcard-imports",
+        "max-line-length", // manually formatting still does this, and KTLint will still wrap long chains when possible
+        "filename", // same as Detekt's MatchingDeclarationName, but Detekt's version can be suppressed and this can't
+        "experimental:argument-list-wrapping" // doesn't work half the time
+      )
     )
   }
 }

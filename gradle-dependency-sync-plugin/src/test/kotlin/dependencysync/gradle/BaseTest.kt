@@ -142,7 +142,7 @@ abstract class BaseTest : HermitJUnit5() {
       enableFeaturePreview("VERSION_CATALOGS")
       include(":dependencies")
     """.trimIndent(),
-    testAction: TestResults. () -> Unit
+    testAction: TestResults.() -> Unit
   ) {
 
     File("${testProjectDir.path}/build.gradle.kts").writeText(rootBuild.trimIndent())

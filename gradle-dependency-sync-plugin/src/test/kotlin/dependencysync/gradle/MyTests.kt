@@ -111,7 +111,7 @@ class MyTests : BaseTest() {
       androidGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidTools" }
 
       androidx-activity-ktx = "androidx.activity:activity-ktx:1.2.3"
-      """.trimIndent()
+    """.trimIndent()
   }
 
   @Test
@@ -191,7 +191,7 @@ class MyTests : BaseTest() {
       androidGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidTools" }
 
       androidx-activity-ktx = "androidx.activity:activity-ktx:1.2.3"
-      """.trimIndent()
+    """.trimIndent()
   }
 
   @Test
