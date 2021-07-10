@@ -72,7 +72,6 @@ val buildTests by tasks.registering {
   dependsOn("testClasses")
 }
 
-
 java {
   // force Java 8 source when building java-only artifacts.
   // This is different than the Kotlin jvm target.
