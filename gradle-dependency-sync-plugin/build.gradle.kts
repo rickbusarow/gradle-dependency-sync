@@ -14,24 +14,74 @@
  */
 
 plugins {
-  javaLibrary
+  kotlin("jvm")
   id("com.gradle.plugin-publish") version "0.15.0"
   id("java-gradle-plugin")
-  `kotlin-dsl`
   `maven-publish`
 }
 
 dependencies {
 
-  implementation(libs.kotlin.gradlePlugin)
-  implementation(libs.kotlin.reflect)
-  implementation(libs.semVer)
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.20")
+  implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.20")
+  implementation("net.swiftzer.semver:semver:1.1.1")
 
-  testImplementation(libs.bundles.hermit)
-  testImplementation(libs.bundles.jUnit)
-  testImplementation(libs.bundles.kotest)
-  testImplementation(libs.kotlinPoet)
+  testImplementation("com.rickbusarow.hermit:hermit-junit5:0.9.5")
+  testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.0")
+  testImplementation("io.kotest:kotest-property-jvm:4.6.0")
+  testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.0")
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+  testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.2")
+  testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
 }
+
+kotlin {
+  explicitApi()
+}
+
+tasks.withType<Test> {
+  useJUnitPlatform()
+
+  testLogging {
+    events = setOf(
+      org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+      org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+    )
+    exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    showExceptions = true
+    showCauses = true
+    showStackTraces = true
+  }
+
+  project
+    .properties
+    .asSequence()
+    .filter { (key, value) ->
+      key.startsWith("modulecheck") && value != null
+    }
+    .forEach { (key, value) ->
+      systemProperty(key, value!!)
+    }
+}
+
+val testJvm by tasks.registering {
+  dependsOn("test")
+}
+
+val buildTests by tasks.registering {
+  dependsOn("testClasses")
+}
+
+
+java {
+  // force Java 8 source when building java-only artifacts.
+  // This is different than the Kotlin jvm target.
+  sourceCompatibility = JavaVersion.VERSION_1_8
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+@Suppress("VariableNaming")
+val VERSION: String by extra.properties
 
 gradlePlugin {
   plugins {
@@ -39,7 +89,7 @@ gradlePlugin {
       id = "com.rickbusarow.gradle-dependency-sync"
       group = "com.rickbusarow.gradle-dependency-sync"
       implementationClass = "dependencysync.gradle.DependencySyncPlugin"
-      version = libs.versions.versionName.get()
+      version = VERSION
     }
   }
 }
@@ -47,7 +97,8 @@ gradlePlugin {
 pluginBundle {
   website = "https://github.com/RBusarow/gradle-dependency-sync"
   vcsUrl = "https://github.com/RBusarow/gradle-dependency-sync"
-  description = "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
+  description =
+    "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
   tags = listOf("dependencies", "dependabot")
 
   plugins {
@@ -71,8 +122,4 @@ tasks.create("setupPluginUploadFromEnvironment") {
     System.setProperty("gradle.publish.key", key)
     System.setProperty("gradle.publish.secret", secret)
   }
-}
-
-kotlin {
-  explicitApi()
 }

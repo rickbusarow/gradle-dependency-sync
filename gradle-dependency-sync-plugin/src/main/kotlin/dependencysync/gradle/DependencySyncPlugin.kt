@@ -19,9 +19,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass") // for Gradle
@@ -34,21 +31,21 @@ public abstract class DependencySyncExtension @Inject constructor(
     .convention(target.buildFile.path)
 
   public val typeSafeFile: Property<String> = objects.property(String::class.java)
-    .convention("./gradle/libs.versions.toml")
+    .convention("${target.rootDir}/gradle/libs.versions.toml")
 }
 
 public fun Project.dependencySync(config: DependencySyncExtension.() -> Unit) {
-  extensions.configure(DependencySyncExtension::class, config)
+  extensions.configure(DependencySyncExtension::class.java, config)
 }
 
 public class DependencySyncPlugin : Plugin<Project> {
 
   override fun apply(target: Project) {
-    val settings = target.extensions.create<DependencySyncExtension>(EXTENSION_NAME)
+    val settings = target.extensions.create(EXTENSION_NAME, DependencySyncExtension::class.java)
 
     target.configurations.create(CONFIGURATION_NAME)
 
-    target.tasks.create<DependencySyncTask>(TASK_NAME, settings)
+    target.tasks.create(TASK_NAME, DependencySyncTask::class.java, settings)
   }
 
   internal companion object {
