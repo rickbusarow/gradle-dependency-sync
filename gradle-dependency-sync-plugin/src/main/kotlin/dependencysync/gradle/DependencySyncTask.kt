@@ -51,6 +51,9 @@ public open class DependencySyncTask @Inject constructor(
         tomlEntries.any { it.dep.group == buildFileDep.group && it.dep.name == buildFileDep.name }
       }
       .map { it.toSimpleToml() }
+      .onEach { newDep ->
+        project.logger.quiet("added new Toml dependency declaration: \t\t ${newDep.dep}")
+      }
 
     tomlEntries.addAll(missingFromToml)
 
@@ -78,24 +81,24 @@ public open class DependencySyncTask @Inject constructor(
     tomlText = tomlText.replace(tomlLibrariesBlock, newToml)
 
     tomlEntries
-      .filterNot {
+      .filter {
         val tomlDep = it.dep
 
-        val ktsDep = groupedBuildFileDeps[tomlDep.group]?.get(tomlDep.name)
+        val buildFileDep = groupedBuildFileDeps[tomlDep.group]?.get(tomlDep.name)
 
-        ktsDep != null
+        buildFileDep != null
       }
       .forEach { entry ->
 
         val tomlDep = entry.dep
 
-        val ktsDep = groupedBuildFileDeps.get(tomlDep.group)
+        val buildFileDep = groupedBuildFileDeps[tomlDep.group]
           ?.get(tomlDep.name)
           ?: return@forEach
 
-        if (ktsDep.version != tomlDep.version && entry is TomlEntry.Complex) {
-          val newer = maxOf(ktsDep.version, tomlDep.version)
-          val older = minOf(ktsDep.version, tomlDep.version)
+        if (buildFileDep.version != tomlDep.version && entry is TomlEntry.Complex) {
+          val newer = maxOf(buildFileDep.version, tomlDep.version)
+          val older = minOf(buildFileDep.version, tomlDep.version)
 
           tomlEntries
             .filterIsInstance<TomlEntry.Complex>()
@@ -104,21 +107,27 @@ public open class DependencySyncTask @Inject constructor(
             .forEach { (old, new) ->
 
               buildText = buildText.replace(old.toString(), new.toString())
+
+              project.logger.quiet(
+                """updated build file dependency declaration
+                  |      old: $old
+                  |      new: $new""".trimMargin()
+              )
             }
         }
 
-        if (ktsDep.version > tomlDep.version) {
+        if (buildFileDep.version > tomlDep.version) {
           val originalText = when (entry) {
             is TomlEntry.Complex -> entry.versionDef.originalText
             else -> entry.originalText
           }
 
-          val newText = originalText.replace(tomlDep.version, ktsDep.version)
+          val newText = originalText.replace(tomlDep.version, buildFileDep.version)
 
           project.logger.quiet(
             """updated Toml dependency declaration
-          |      old: $tomlDep
-          |      new: $ktsDep""".trimMargin()
+              |      old: $tomlDep
+              |      new: $buildFileDep""".trimMargin()
           )
 
           tomlText = tomlText.replace(originalText, newText)
@@ -145,7 +154,8 @@ public open class DependencySyncTask @Inject constructor(
     val lastBuildDep = inBuildFile.lastOrNull()
       ?: throw GradleException("Cannot find any `dependencySync` dependencies in build file")
 
-    val lastBuildDepRegex = """(.*dependencySync.*['"])$lastBuildDep(['"].*)""".toRegex()
+    val lastBuildDepRegex =
+      """(.*dependencySync.*['"])${lastBuildDep.group}:${lastBuildDep.name}:.*(['"].*)""".toRegex()
 
     val lastBuildDepResult = buildText.lines()
       .asSequence()
@@ -163,6 +173,8 @@ public open class DependencySyncTask @Inject constructor(
           |$prefix$lastBuildDep$suffix
         """.trimMargin()
       buildText = buildText.replace(lastBuildDepResult.value, new)
+
+      project.logger.quiet("added new build file dependency declaration: \t\t $missingDep")
     }
     return buildText
   }

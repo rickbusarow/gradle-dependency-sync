@@ -19,7 +19,7 @@ internal data class ParsedToml(
   internal companion object {
 
     val versionsBlockReg = """^[\s\S]*\[versions\]([\S\s]*)\[libraries\]""".toRegex()
-    val librariesBlockReg = """^[\s\S]*\[libraries\]([\S\s]*)\[\S*\]""".toRegex()
+    val librariesBlockReg = """\[libraries\]([^\[]*)""".toRegex()
 
     internal fun create(tomlFile: File): ParsedToml {
       val tomlText = tomlFile.readText()
@@ -67,5 +67,16 @@ internal data class ParsedToml(
         entries = tomlEntries
       )
     }
+  }
+
+  override fun toString(): String {
+    return """ParsedToml(
+      |text='$text',
+      |librariesBlock='$librariesBlock',
+      |versions=$versions,
+      |complexEntries=$complexEntries,
+      |simpleEntries=$simpleEntries,
+      |entries=$entries
+      |)""".trimMargin()
   }
 }

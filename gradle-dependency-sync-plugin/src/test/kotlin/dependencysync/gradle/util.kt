@@ -18,10 +18,9 @@ package dependencysync.gradle
 import hermit.test.Hermit
 import hermit.test.LazyResets
 import java.io.File
-import java.nio.file.Files
 import java.util.UUID
 
-fun Hermit.tempDir(path: String = UUID.randomUUID().toString()): LazyResets<File> {
+fun Hermit.tempDir(path: () -> String = { UUID.randomUUID().toString() }): LazyResets<File> {
   return object : LazyResets<File> {
 
     private var lazyHolder: Lazy<File> = createLazy()
@@ -31,12 +30,10 @@ fun Hermit.tempDir(path: String = UUID.randomUUID().toString()): LazyResets<File
 
     private fun createLazy() = lazy {
       register(this)
-      Files.createTempDirectory(path).toFile()
+      File(path()).also { it.mkdirs() }
     }
 
     override fun reset() {
-      value.deleteRecursively()
-
       lazyHolder = createLazy()
     }
 

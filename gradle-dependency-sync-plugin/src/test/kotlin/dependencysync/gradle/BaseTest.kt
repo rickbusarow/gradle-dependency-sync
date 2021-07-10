@@ -20,14 +20,14 @@ import io.kotest.matchers.collections.shouldContain
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInfo
 import java.io.File
+import kotlin.properties.Delegates
 import io.kotest.matchers.shouldBe as kotestShouldBe
 
 public val DEFAULT_GRADLE_VERSION: String = System
-  .getProperty("modulecheck.gradleVersion", "7.0.2")
+  .getProperty("dependencySync.gradleVersion", "7.1.1")
   /*
   * The GitHub Actions test matrix parses "7.0" into an Int and passes in a command line argument of "7".
   * That version doesn't resolve.  So if the String doesn't contain a period, just append ".0"
@@ -35,21 +35,25 @@ public val DEFAULT_GRADLE_VERSION: String = System
   .let { prop ->
     if (prop.contains('.')) prop else "$prop.0"
   }
-public val DEFAULT_KOTLIN_VERSION: String =
-  System.getProperty("modulecheck.kotlinVersion", "1.5.10")
-public val DEFAULT_AGP_VERSION: String =
-  System.getProperty("modulecheck.agpVersion", "7.0.0-beta02")
 
 abstract class BaseTest : HermitJUnit5() {
 
-  val testProjectDir by tempDir()
+  val testProjectDir by tempDir {
+
+    val className = testInfo.testClass.get().simpleName
+
+    val testName = testInfo.displayName
+      .replace("[^a-zA-Z0-9]".toRegex(), "_")
+      .replace("_{2,}".toRegex(), "_")
+      .removeSuffix("_")
+
+    "build/tests/$className/$testName"
+  }
 
   fun File.relativePath() = path.removePrefix(testProjectDir.path)
 
   fun String.fixPath(): String = replace(File.separator, "/")
 
-  private val kotlinVersion = DEFAULT_KOTLIN_VERSION
-  private val agpVersion = DEFAULT_AGP_VERSION
   private val gradleVersion = DEFAULT_GRADLE_VERSION
 
   val gradleRunner by resets {
@@ -62,7 +66,7 @@ abstract class BaseTest : HermitJUnit5() {
       .withProjectDir(testProjectDir)
   }
 
-  private var testInfo: TestInfo? = null
+  private var testInfo: TestInfo by Delegates.notNull()
 
   fun build(vararg tasks: String): BuildResult {
     return gradleRunner.withArguments(*tasks).build()
@@ -84,11 +88,6 @@ abstract class BaseTest : HermitJUnit5() {
     this.testInfo = testInfo
   }
 
-  @AfterEach
-  fun afterEach() {
-    testInfo = null
-  }
-
   @Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
   infix fun <T, U : T> T.shouldBe(expected: U?) {
     /*
@@ -99,7 +98,11 @@ abstract class BaseTest : HermitJUnit5() {
     So, we can catch the assertion error, remove this function from the stacktrace, and rethrow.
      */
     try {
-      kotestShouldBe(expected)
+      if (this is String && expected is String) {
+        this.trim().trimIndent() kotestShouldBe expected.trim().trimIndent()
+      } else {
+        kotestShouldBe(expected)
+      }
     } catch (assertionError: AssertionError) {
       // remove this function from the stacktrace and rethrow
       assertionError.stackTrace = assertionError
@@ -108,5 +111,75 @@ abstract class BaseTest : HermitJUnit5() {
         .toTypedArray()
       throw assertionError
     }
+  }
+
+  inline fun test(
+    toml: String,
+    gradle: String,
+    tomlPath: String = "/gradle/libs.versions.toml",
+    useKts: Boolean = true,
+    rootBuild: String = """
+      buildscript {
+        repositories {
+          mavenCentral()
+          google()
+          maven("https://plugins.gradle.org/m2/")
+          maven("https://oss.sonatype.org/content/repositories/snapshots")
+        }
+        dependencies {
+          classpath("com.android.tools.build:gradle:4.2.2")
+          classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.20")
+        }
+      }
+    """.trimIndent(),
+    settingsText: String = """
+      pluginManagement {
+        repositories {
+          gradlePluginPortal()
+          mavenCentral()
+        }
+      }
+      enableFeaturePreview("VERSION_CATALOGS")
+      include(":dependencies")
+    """.trimIndent(),
+    testAction: TestResults. () -> Unit
+  ) {
+
+    File("${testProjectDir.path}/build.gradle.kts").writeText(rootBuild.trimIndent())
+    File("${testProjectDir.path}/settings.gradle.kts").writeText(settingsText.trimIndent())
+
+    File("${testProjectDir.path}/gradle").mkdirs()
+    val tomlFile = File("${testProjectDir.path}/$tomlPath")
+    tomlFile.writeText(toml.trimIndent())
+
+    val depsRoot = File("${testProjectDir.path}/dependencies").also { it.mkdirs() }
+    val buildFile = if (useKts) {
+      File(depsRoot.path + "/build.gradle.kts")
+    } else {
+      File(depsRoot.path + "/build.gradle")
+    }
+    buildFile.createNewFile()
+    buildFile.writeText(gradle.trimIndent())
+
+    val testResults = TestResults(
+      toml.trimIndent(),
+      gradle.trimIndent(),
+      tomlFile,
+      buildFile,
+      build("dependencySync")
+    )
+
+    testAction.invoke(testResults)
+  }
+
+  data class TestResults(
+    val tomlInput: String,
+    val buildInput: String,
+    val tomlFile: File,
+    val buildFile: File,
+    val buildResult: BuildResult
+  ) {
+    fun tomlText() = tomlFile.readText()
+    fun buildText() = buildFile.readText()
   }
 }
