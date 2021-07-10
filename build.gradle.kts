@@ -57,7 +57,7 @@ allprojects {
 
         jvmTarget = "1.8"
 
-        freeCompilerArgs = freeCompilerArgs+listOf(
+        freeCompilerArgs = freeCompilerArgs + listOf(
           "-Xinline-classes",
           "-Xopt-in=kotlin.ExperimentalStdlibApi",
           "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
@@ -135,15 +135,12 @@ allprojects {
   }
 }
 
-val kotlinVersion = libs.versions.kotlin.get()
-
 allprojects {
   configurations.all {
     resolutionStrategy {
-      force("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
       eachDependency {
         when {
-          requested.group == "org.jetbrains.kotlin" -> useVersion(kotlinVersion)
+          requested.group == "org.jetbrains.kotlin" -> useVersion("1.5.20")
         }
       }
     }

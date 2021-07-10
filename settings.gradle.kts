@@ -22,7 +22,7 @@ pluginManagement {
   resolutionStrategy {
     eachPlugin {
       when {
-        requested.id.id.startsWith("org.jetbrains.kotlin") -> useVersion("1.5.10")
+        requested.id.id.startsWith("org.jetbrains.kotlin") -> useVersion("1.5.20")
       }
     }
   }
@@ -63,7 +63,5 @@ gradleEnterprise {
 }
 
 rootProject.name = "gradle-dependency-sync"
-enableFeaturePreview("VERSION_CATALOGS")
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":gradle-dependency-sync-plugin")
