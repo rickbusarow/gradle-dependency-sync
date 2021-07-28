@@ -4,7 +4,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.junit.jupiter.api.Test
 
-class MyTests : BaseTest() {
+class IntegrationTests : BaseTest() {
 
   @Test
   fun `everything in sync should not be changed`() = test(
@@ -234,6 +234,143 @@ class MyTests : BaseTest() {
         dependencySync("com.android.tools.build:gradle:4.2.2")
         dependencySync("androidx.activity:activity-ktx:1.2.3")
       }
+    """.trimIndent()
+  }
+
+  @Test
+  fun `complex toml rc02 should be updated to stable`() = test(
+    toml = """
+      [versions]
+      androidTools = "7.0.0-rc02"
+
+      [libraries]
+      androidGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidTools" }
+    """.trimIndent(),
+    gradle = """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("com.android.tools.build:gradle:7.0.0")
+      }
+    """.trimIndent()
+  ) {
+
+    buildResult.shouldSucceed()
+
+    buildResult.output shouldContain """
+      updated Toml dependency declaration
+            old: com.android.tools.build:gradle:7.0.0-rc02
+            new: com.android.tools.build:gradle:7.0.0
+    """.trimIndent()
+
+    buildText() shouldBe """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("com.android.tools.build:gradle:7.0.0")
+      }
+    """.trimIndent()
+
+    tomlText() shouldBe """
+      [versions]
+      androidTools = "7.0.0"
+
+      [libraries]
+      androidGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidTools" }
+    """.trimIndent()
+  }
+
+  @Test
+  fun `simple toml rc02 should be updated to stable`() = test(
+    toml = """
+      [versions]
+
+      [libraries]
+      androidGradlePlugin = "com.android.tools.build:gradle:7.0.0-rc02"
+    """.trimIndent(),
+    gradle = """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("com.android.tools.build:gradle:7.0.0")
+      }
+    """.trimIndent()
+  ) {
+
+    buildResult.shouldSucceed()
+
+    buildResult.output shouldContain """
+      updated Toml dependency declaration
+            old: com.android.tools.build:gradle:7.0.0-rc02
+            new: com.android.tools.build:gradle:7.0.0
+    """.trimIndent()
+
+    buildText() shouldBe """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("com.android.tools.build:gradle:7.0.0")
+      }
+    """.trimIndent()
+
+    tomlText() shouldBe """
+      [versions]
+
+      [libraries]
+      androidGradlePlugin = "com.android.tools.build:gradle:7.0.0"
+    """.trimIndent()
+  }
+
+  @Test
+  fun `build file rc02 should be updated to stable`() = test(
+    toml = """
+      [versions]
+
+      [libraries]
+      androidGradlePlugin = "com.android.tools.build:gradle:7.0.0"
+    """.trimIndent(),
+    gradle = """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("com.android.tools.build:gradle:7.0.0-rc02")
+      }
+    """.trimIndent()
+  ) {
+
+    buildResult.shouldSucceed()
+
+    buildResult.output shouldContain """
+      updated build file dependency declaration
+            old: com.android.tools.build:gradle:7.0.0-rc02
+            new: com.android.tools.build:gradle:7.0.0
+    """.trimIndent()
+
+    buildText() shouldBe """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("com.android.tools.build:gradle:7.0.0")
+      }
+    """.trimIndent()
+
+    tomlText() shouldBe """
+      [versions]
+
+      [libraries]
+      androidGradlePlugin = "com.android.tools.build:gradle:7.0.0"
     """.trimIndent()
   }
 }

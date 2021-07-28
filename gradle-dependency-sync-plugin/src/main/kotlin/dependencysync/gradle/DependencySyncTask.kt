@@ -1,5 +1,6 @@
 package dependencysync.gradle
 
+import net.swiftzer.semver.SemVer
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
@@ -96,27 +97,52 @@ public open class DependencySyncTask @Inject constructor(
           ?.get(tomlDep.name)
           ?: return@forEach
 
-        if (buildFileDep.version != tomlDep.version && entry is TomlEntry.Complex) {
-          val newer = maxOf(buildFileDep.version, tomlDep.version)
-          val older = minOf(buildFileDep.version, tomlDep.version)
+        // comparisons need to be done as SemVer, because with regular String comparison,
+        // a pre-release version like 1.0.0-rc02 is "greater" than the stable 1.0.0
+        val buildSemVer = SemVer.parse(buildFileDep.version)
+        val tomlSemVer = SemVer.parse(tomlDep.version)
 
-          tomlEntries
-            .filterIsInstance<TomlEntry.Complex>()
-            .filter { it.versionDef == entry.versionDef }
-            .map { it.dep.copy(version = older) to it.dep.copy(version = newer) }
-            .forEach { (old, new) ->
+        if (buildFileDep.version != tomlDep.version) {
 
-              buildText = buildText.replace(old.toString(), new.toString())
+          // SemVer can be used for the comparison, but their `.toString()` doesn't always work.
+          // SemVer would change "1" to "1.0.0", or "2.36" to "2.36.0",
+          // and those versions wouldn't resolve.
+          val (newer, older) = if (buildSemVer > tomlSemVer) {
+            buildFileDep.version to tomlDep.version
+          } else {
+            tomlDep.version to buildFileDep.version
+          }
 
-              project.logger.quiet(
-                """updated build file dependency declaration
-                  |      old: $old
-                  |      new: $new""".trimMargin()
-              )
-            }
+          if (newer != buildFileDep.version) {
+            val new = buildFileDep.copy(version = newer)
+            buildText = buildText.replace(buildFileDep.toString(), new.toString())
+
+            project.logger.quiet(
+              """updated build file dependency declaration
+                            |      old: $buildFileDep
+                            |      new: $new""".trimMargin()
+            )
+          }
+
+          if (entry is TomlEntry.Complex) {
+            tomlEntries
+              .filterIsInstance<TomlEntry.Complex>()
+              .filter { it.versionDef == entry.versionDef }
+              .map { it.dep.copy(version = older) to it.dep.copy(version = newer) }
+              .forEach { (old, new) ->
+
+                buildText = buildText.replace(old.toString(), new.toString())
+
+                project.logger.quiet(
+                  """updated build file dependency declaration
+                            |      old: $old
+                            |      new: $new""".trimMargin()
+                )
+              }
+          }
         }
 
-        if (buildFileDep.version > tomlDep.version) {
+        if (buildSemVer > tomlSemVer) {
           val originalText = when (entry) {
             is TomlEntry.Complex -> entry.versionDef.originalText
             else -> entry.originalText
