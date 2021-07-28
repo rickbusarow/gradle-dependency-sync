@@ -22,6 +22,7 @@ public open class DependencySyncTask @Inject constructor(
       """((\S*)\s*=\s*\{\s*module\s*=\s*"([^:]*):(\S*)"\s*,\s*version\.ref\s*=\s*"([^"]*)"\s*\}\s*)""".toRegex()
   }
 
+  @Suppress("NestedBlockDepth")
   @TaskAction
   public fun action() {
     val gradleBuildFile = File(settings.gradleBuildFile.get())
