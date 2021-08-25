@@ -22,7 +22,7 @@ plugins {
 
 dependencies {
 
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21")
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30")
   implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.21")
   implementation("net.swiftzer.semver:semver:1.1.1")
 
