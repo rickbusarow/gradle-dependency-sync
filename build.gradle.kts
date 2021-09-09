@@ -28,7 +28,7 @@ buildscript {
     classpath("com.android.tools.build:gradle:7.0.2")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30")
     classpath("org.jetbrains.kotlinx:kotlinx-knit:0.3.0")
-    classpath("org.jlleitschuh.gradle:ktlint-gradle:10.1.0")
+    classpath("org.jlleitschuh.gradle:ktlint-gradle:10.2.0")
   }
 }
 
