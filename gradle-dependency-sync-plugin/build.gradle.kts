@@ -31,7 +31,7 @@ dependencies {
   testImplementation("io.kotest:kotest-property-jvm:4.6.2")
   testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.2")
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
-  testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.2")
+  testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.0")
   testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.0")
 }
 
