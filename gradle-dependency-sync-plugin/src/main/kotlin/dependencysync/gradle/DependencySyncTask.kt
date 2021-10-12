@@ -132,7 +132,20 @@ public open class DependencySyncTask @Inject constructor(
               .map { it.dep.copy(version = older) to it.dep.copy(version = newer) }
               .forEach { (old, new) ->
 
-                buildText = buildText.replace(old.toString(), new.toString())
+                // Non-SemVer versions don't work using regular strings for replacement token.
+                // For example look at Dagger:
+                // old deps
+                //   ...dagger-compiler:2.39.1
+                //   ...dagger:2.39
+                // The `old.toString()` here is `2.39`, and replacing `old.toString()`
+                // with `new.toString()` will replace it in both strings, resulting in:
+                //   ...dagger-compiler:2.39.1.1
+                //   ...dagger:2.39.1
+                // Instead, use a regex with `^___$` for the token to be replaced, so that it only
+                // replaces strings which are a perfect match.
+                val oldRegex = "^${Regex.escapeReplacement(old.toString())}$".toRegex()
+
+                buildText = buildText.replace(oldRegex, new.toString())
 
                 project.logger.quiet(
                   """updated build file dependency declaration

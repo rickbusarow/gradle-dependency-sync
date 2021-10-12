@@ -238,6 +238,49 @@ class IntegrationTests : BaseTest() {
   }
 
   @Test
+  fun `out-of-date non-semver gradle dependency should be updated`() = test(
+    toml = """
+      [versions]
+      google-dagger = "2.39.1"
+
+      [libraries]
+
+      google-dagger-api = { module = "com.google.dagger:dagger", version.ref = "google-dagger" }
+      google-dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "google-dagger" }
+    """.trimIndent(),
+    gradle = """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("com.google.dagger:dagger-compiler:2.39.1")
+        dependencySync("com.google.dagger:dagger:2.39")
+      }
+    """.trimIndent()
+  ) {
+
+    buildResult.shouldSucceed()
+
+    buildResult.output shouldContain """
+      updated build file dependency declaration
+            old: com.google.dagger:dagger:2.39
+            new: com.google.dagger:dagger:2.39.1
+    """.trimIndent()
+
+    buildText() shouldBe """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("com.google.dagger:dagger-compiler:2.39.1")
+        dependencySync("com.google.dagger:dagger:2.39.1")
+      }
+    """.trimIndent()
+  }
+
+  @Test
   fun `complex toml rc02 should be updated to stable`() = test(
     toml = """
       [versions]
