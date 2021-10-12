@@ -26,17 +26,17 @@ buildscript {
   }
   dependencies {
     classpath("com.android.tools.build:gradle:7.0.2")
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30")
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31")
     classpath("org.jetbrains.kotlinx:kotlinx-knit:0.3.0")
-    classpath("org.jlleitschuh.gradle:ktlint-gradle:10.1.0")
+    classpath("org.jlleitschuh.gradle:ktlint-gradle:10.2.0")
   }
 }
 
 plugins {
   id("com.github.ben-manes.versions") version "0.39.0"
   id("io.gitlab.arturbosch.detekt") version "1.18.1"
-  id("org.jetbrains.dokka") version "1.5.0"
-  id("com.osacky.doctor") version "0.7.1"
+  id("org.jetbrains.dokka") version "1.5.30"
+  id("com.osacky.doctor") version "0.7.3"
   id("com.dorongold.task-tree") version "2.1.0"
   base
 }

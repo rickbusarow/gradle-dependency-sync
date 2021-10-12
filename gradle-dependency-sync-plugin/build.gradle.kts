@@ -15,24 +15,24 @@
 
 plugins {
   kotlin("jvm")
-  id("com.gradle.plugin-publish") version "0.15.0"
+  id("com.gradle.plugin-publish") version "0.16.0"
   id("java-gradle-plugin")
   `maven-publish`
 }
 
 dependencies {
 
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30")
-  implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.30")
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31")
+  implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.31")
   implementation("net.swiftzer.semver:semver:1.1.1")
 
   testImplementation("com.rickbusarow.hermit:hermit-junit5:0.9.5")
-  testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.2")
-  testImplementation("io.kotest:kotest-property-jvm:4.6.2")
-  testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.2")
-  testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-  testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.2")
-  testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+  testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.3")
+  testImplementation("io.kotest:kotest-property-jvm:4.6.3")
+  testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.3")
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.0")
+  testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.0")
+  testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.0")
 }
 
 kotlin {
