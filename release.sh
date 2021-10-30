@@ -1,3 +1,6 @@
+#!/bin/bash
+
+
 #
 # Copyright (C) 2021 Rick Busarow
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +16,15 @@
 # limitations under the License.
 #
 
-org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8 -XX:+UseParallelGC
-org.gradle.daemon=true
-org.gradle.caching=true
-org.gradle.parallel=true
-org.gradle.vfs.watch=true
+# Publish Maven release
+./gradlew publish --no-daemon --no-parallel
 
-android.useAndroidX=true
+# Publish to Gradle Plugin Portal
+./gradlew publishPlugins
 
-kotlin.code.style=official
-kotlin.caching.enabled=true
-kotlin.incremental=true
-
-VERSION=0.11.4
+echo
+echo ' ___ _   _  ___ ___ ___  ___ ___'
+echo '/ __| | | |/ __/ __/ _ \/ __/ __|'
+echo '\__ \ |_| | (_| (_|  __/\__ \__ \'
+echo '|___/\__,_|\___\___\___||___/___/'
+echo
