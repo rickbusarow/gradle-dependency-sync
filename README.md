@@ -44,7 +44,7 @@ but it's necessary for the IDE and Dependabot to do their parsing.
 // ./dependency-sync/build.gradle.kts
 
 plugins {
-  id("com.rickbusarow.gradle-dependency-sync") version "0.11.1"
+  id("com.rickbusarow.gradle-dependency-sync") version "0.11.4"
 }
 
 dependencySync {
@@ -84,4 +84,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
