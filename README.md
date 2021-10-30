@@ -1,3 +1,6 @@
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.rickbusarow.gradle-dependency-sync?style=flat-square)](https://plugins.gradle.org/plugin/com.rickbusarow.gradle-dependency-sync)
+[![License](https://img.shields.io/badge/license-apache2.0-blue?style=flat-square.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ## What does it do?
 
 This Gradle plugin will sync dependency declarations between
