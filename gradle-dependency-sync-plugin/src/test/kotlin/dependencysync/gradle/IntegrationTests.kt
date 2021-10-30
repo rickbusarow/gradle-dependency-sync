@@ -416,4 +416,95 @@ class IntegrationTests : BaseTest() {
       androidGradlePlugin = "com.android.tools.build:gradle:7.0.0"
     """.trimIndent()
   }
+
+  @Test
+  fun `groovy build file rc02 should be updated to stable`() = test(
+    toml = """
+      [versions]
+
+      [libraries]
+      androidGradlePlugin = "com.android.tools.build:gradle:7.0.0"
+    """.trimIndent(),
+    gradle = """
+      plugins {
+        id 'com.rickbusarow.gradle-dependency-sync'
+      }
+
+      dependencies {
+        dependencySync 'com.android.tools.build:gradle:7.0.0-rc02'
+      }
+    """.trimIndent(),
+    useKts = false
+  ) {
+
+    buildResult.shouldSucceed()
+
+    buildResult.output shouldContain """
+      updated build file dependency declaration
+            old: com.android.tools.build:gradle:7.0.0-rc02
+            new: com.android.tools.build:gradle:7.0.0
+    """.trimIndent()
+
+    buildText() shouldBe """
+      plugins {
+        id 'com.rickbusarow.gradle-dependency-sync'
+      }
+
+      dependencies {
+        dependencySync 'com.android.tools.build:gradle:7.0.0'
+      }
+    """.trimIndent()
+
+    tomlText() shouldBe """
+      [versions]
+
+      [libraries]
+      androidGradlePlugin = "com.android.tools.build:gradle:7.0.0"
+    """.trimIndent()
+  }
+
+  @Test
+  fun `build file -dot-RELEASE should be parsed`() = test(
+    toml = """
+      [versions]
+
+      [libraries]
+      unbescape = "org.unbescape:unbescape:1.1.6.RELEASE"
+    """.trimIndent(),
+    gradle = """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("org.unbescape:unbescape:1.1.5.RELEASE")
+      }
+    """.trimIndent()
+  ) {
+
+    buildResult.shouldSucceed()
+
+    buildResult.output shouldContain """
+      updated build file dependency declaration
+            old: org.unbescape:unbescape:1.1.5.RELEASE
+            new: org.unbescape:unbescape:1.1.6.RELEASE
+    """.trimIndent()
+
+    buildText() shouldBe """
+      plugins {
+        id("com.rickbusarow.gradle-dependency-sync")
+      }
+
+      dependencies {
+        dependencySync("org.unbescape:unbescape:1.1.6.RELEASE")
+      }
+    """.trimIndent()
+
+    tomlText() shouldBe """
+      [versions]
+
+      [libraries]
+      unbescape = "org.unbescape:unbescape:1.1.6.RELEASE"
+    """.trimIndent()
+  }
 }

@@ -15,6 +15,8 @@ public open class DependencySyncTask @Inject constructor(
 
   internal companion object {
 
+    const val SEMVER_SIZE = 3
+
     val versionReg = """((\S*)\s*=\s*"([^"]*)"\s*)""".toRegex()
 
     val simpleReg = """((\S*)\s*=\s*"([^":]*):([^":]*):([^"]*)")""".toRegex()
@@ -98,10 +100,21 @@ public open class DependencySyncTask @Inject constructor(
           ?.get(tomlDep.name)
           ?: return@forEach
 
+        // Non-SemVer versions which have too many dots can't be parsed.
+        // This turns "1.0.0.RELEASE" into "1.0.0".
+        val tomlSplit = tomlDep.version
+          .split(".")
+          .take(SEMVER_SIZE)
+          .joinToString(".")
+        val buildFileSplit = buildFileDep.version
+          .split(".")
+          .take(SEMVER_SIZE)
+          .joinToString(".")
+
         // comparisons need to be done as SemVer, because with regular String comparison,
         // a pre-release version like 1.0.0-rc02 is "greater" than the stable 1.0.0
-        val buildSemVer = SemVer.parse(buildFileDep.version)
-        val tomlSemVer = SemVer.parse(tomlDep.version)
+        val buildSemVer = SemVer.parse(buildFileSplit)
+        val tomlSemVer = SemVer.parse(tomlSplit)
 
         if (buildFileDep.version != tomlDep.version) {
 
