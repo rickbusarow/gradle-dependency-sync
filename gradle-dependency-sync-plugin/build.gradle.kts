@@ -15,14 +15,14 @@
 
 plugins {
   kotlin("jvm")
-  id("com.gradle.plugin-publish") version "0.17.0"
+  id("com.gradle.plugin-publish") version "0.18.0"
   id("java-gradle-plugin")
   `maven-publish`
 }
 
 dependencies {
 
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31")
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
   implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.0")
   implementation("net.swiftzer.semver:semver:1.1.2")
 
