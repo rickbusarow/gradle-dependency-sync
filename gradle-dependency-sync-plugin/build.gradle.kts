@@ -27,7 +27,7 @@ dependencies {
   implementation("net.swiftzer.semver:semver:1.1.2")
 
   testImplementation("com.rickbusarow.hermit:hermit-junit5:0.9.5")
-  testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.3")
+  testImplementation("io.kotest:kotest-assertions-core-jvm:5.2.1")
   testImplementation("io.kotest:kotest-property-jvm:4.6.3")
   testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.3")
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
