@@ -47,7 +47,7 @@ jobs:
         run: ./gradlew test
 
       - name: Unit test results
-        uses: mikepenz/action-junit-report@v1
+        uses: mikepenz/action-junit-report@v3
         if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
