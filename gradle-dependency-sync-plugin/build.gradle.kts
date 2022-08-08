@@ -24,7 +24,7 @@ dependencies {
 
   implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
   implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
-  implementation("net.swiftzer.semver:semver:1.1.2")
+  implementation("net.swiftzer.semver:semver:1.2.0")
 
   testImplementation("com.rickbusarow.hermit:hermit-junit5:0.9.5")
   testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.4")
