@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rick Busarow
+ * Copyright (C) 2020-2022 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,68 +15,50 @@
 
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
-import io.gitlab.arturbosch.detekt.detekt
 
 buildscript {
-  repositories {
-    mavenCentral()
-    google()
-    maven("https://plugins.gradle.org/m2/")
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
-  }
   dependencies {
-    classpath("com.android.tools.build:gradle:7.0.3")
-    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
-    classpath("org.jetbrains.kotlinx:kotlinx-knit:0.3.0")
-    classpath("org.jlleitschuh.gradle:ktlint-gradle:10.2.1")
+    classpath(libs.kotlin.gradle.plugin)
+    classpath(libs.ktlint.gradle)
   }
 }
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-  id("com.github.ben-manes.versions") version "0.39.0"
-  id("io.gitlab.arturbosch.detekt") version "1.18.1"
-  id("org.jetbrains.dokka") version "1.5.31"
-  id("com.osacky.doctor") version "0.7.3"
-  id("com.dorongold.task-tree") version "2.1.0"
+  alias(libs.plugins.littlerobots.vcu)
+  alias(libs.plugins.ben.manes.versions)
+  alias(libs.plugins.dependencyAnalysis)
+  alias(libs.plugins.detekt)
+  alias(libs.plugins.dokka)
   base
 }
 
-allprojects {
+versionCatalogUpdate {
+  // sort the catalog by key (default is true)
+  sortByKey.set(false)
+  // Referenced that are pinned are not automatically updated.
+  // They are also not automatically kept however (use keep for that).
+  pin {
+    // pins all libraries and plugins using the given versions
+    // versions.add("my-version-name")
 
-  repositories {
-    google()
-    mavenCentral()
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
-    maven("https://jitpack.io")
+    // pins all libraries (not plugins) for the given groups
+    // groups.add("com.somegroup")
   }
+  keep {
+    // versions.add("my-version-name")
+    // groups.add("com.somegroup")
 
-  tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>()
-    .configureEach {
-
-      kotlinOptions {
-
-        jvmTarget = "1.8"
-
-        freeCompilerArgs = freeCompilerArgs + listOf(
-          "-Xinline-classes",
-          "-Xopt-in=kotlin.ExperimentalStdlibApi",
-          "-Xuse-experimental=kotlin.contracts.ExperimentalContracts"
-        )
-      }
-    }
+    keepUnusedVersions.set(true)
+    keepUnusedLibraries.set(true)
+    keepUnusedPlugins.set(false)
+  }
 }
 
-@Suppress("DEPRECATION")
 detekt {
 
   parallel = true
   config = files("$rootDir/detekt/detekt-config.yml")
-
-  reports {
-    xml.enabled = false
-    html.enabled = true
-    txt.enabled = false
-  }
 }
 
 tasks.withType<DetektCreateBaselineTask> {
@@ -93,6 +75,13 @@ tasks.withType<DetektCreateBaselineTask> {
 tasks.withType<Detekt> {
 
   setSource(files(rootDir))
+
+  reports {
+    xml.required.set(true)
+    html.required.set(true)
+    txt.required.set(false)
+    sarif.required.set(true)
+  }
 
   include("**/*.kt", "**/*.kts")
   exclude("**/resources/**", "**/build/**", "**/src/test/java**", "**/src/test/kotlin**")
@@ -123,26 +112,21 @@ allprojects {
 
   configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     debug.set(false)
-
+    version.set("0.45.2")
+    outputToConsole.set(true)
+    enableExperimentalRules.set(true)
     disabledRules.set(
       setOf(
-        "no-wildcard-imports",
         "max-line-length", // manually formatting still does this, and KTLint will still wrap long chains when possible
         "filename", // same as Detekt's MatchingDeclarationName, but Detekt's version can be suppressed and this can't
-        "experimental:argument-list-wrapping" // doesn't work half the time
+        "experimental:argument-list-wrapping", // doesn't work half the time
+        "experimental:no-empty-first-line-in-method-block", // code golf...
+        // This can be re-enabled once 0.46.0 is released
+        // https://github.com/pinterest/ktlint/issues/1435
+        "experimental:type-parameter-list-spacing",
+        // added in 0.46.0
+        "experimental:function-signature"
       )
     )
-  }
-}
-
-allprojects {
-  configurations.all {
-    resolutionStrategy {
-      eachDependency {
-        when {
-          requested.group == "org.jetbrains.kotlin" -> useVersion("1.5.20")
-        }
-      }
-    }
   }
 }

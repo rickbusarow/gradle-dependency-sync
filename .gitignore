@@ -63,3 +63,4 @@ libs/
 
 # all build dirs at any level
 **/build
+!/.idea/ktlint.xml

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rick Busarow
+ * Copyright (C) 2020-2022 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package dependencysync.gradle
 import hermit.test.Hermit
 import hermit.test.LazyResets
 import java.io.File
-import java.util.UUID
+import java.util.*
 
 fun Hermit.tempDir(path: () -> String = { UUID.randomUUID().toString() }): LazyResets<File> {
   return object : LazyResets<File> {
