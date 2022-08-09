@@ -133,8 +133,9 @@ public open class DependencySyncTask @Inject constructor(
 
             project.logger.quiet(
               """updated build file dependency declaration
-                            |      old: $buildFileDep
-                            |      new: $new""".trimMargin()
+              |      old: $buildFileDep
+              |      new: $new
+              """.trimMargin()
             )
           }
 
@@ -162,8 +163,9 @@ public open class DependencySyncTask @Inject constructor(
 
                 project.logger.quiet(
                   """updated build file dependency declaration
-                            |      old: $old
-                            |      new: $new""".trimMargin()
+                  |      old: $old
+                  |      new: $new
+                  """.trimMargin()
                 )
               }
           }
@@ -179,8 +181,9 @@ public open class DependencySyncTask @Inject constructor(
 
           project.logger.quiet(
             """updated Toml dependency declaration
-              |      old: $tomlDep
-              |      new: $buildFileDep""".trimMargin()
+            |      old: $tomlDep
+            |      new: $buildFileDep
+            """.trimMargin()
           )
 
           tomlText = tomlText.replace(originalText, newText)
@@ -224,7 +227,7 @@ public open class DependencySyncTask @Inject constructor(
     missingFromBuildFile.forEach { missingDep ->
       val new = """$prefix$missingDep$suffix
           |$prefix$lastBuildDep$suffix
-        """.trimMargin()
+      """.trimMargin()
       buildText = buildText.replace(lastBuildDepResult.value, new)
 
       project.logger.quiet("added new build file dependency declaration: \t\t $missingDep")

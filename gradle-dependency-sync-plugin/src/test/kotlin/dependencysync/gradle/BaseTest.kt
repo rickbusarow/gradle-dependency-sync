@@ -29,9 +29,9 @@ import io.kotest.matchers.shouldBe as kotestShouldBe
 public val DEFAULT_GRADLE_VERSION: String = System
   .getProperty("dependencySync.gradleVersion", "7.1.1")
   /*
-  * The GitHub Actions test matrix parses "7.0" into an Int and passes in a command line argument of "7".
-  * That version doesn't resolve.  So if the String doesn't contain a period, just append ".0"
-  */
+   * The GitHub Actions test matrix parses "7.0" into an Int and passes in a command line argument of "7".
+   * That version doesn't resolve.  So if the String doesn't contain a period, just append ".0"
+   */
   .let { prop ->
     if (prop.contains('.')) prop else "$prop.0"
   }

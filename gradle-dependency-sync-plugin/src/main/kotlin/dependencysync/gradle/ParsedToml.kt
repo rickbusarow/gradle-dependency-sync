@@ -13,7 +13,7 @@ internal data class ParsedToml(
   val versions: Map<String, TomlVersion>,
   val complexEntries: List<Complex>,
   val simpleEntries: List<Simple>,
-  val entries: MutableList<TomlEntry>,
+  val entries: MutableList<TomlEntry>
 
 ) {
   internal companion object {
@@ -71,12 +71,13 @@ internal data class ParsedToml(
 
   override fun toString(): String {
     return """ParsedToml(
-      |text='$text',
-      |librariesBlock='$librariesBlock',
-      |versions=$versions,
-      |complexEntries=$complexEntries,
-      |simpleEntries=$simpleEntries,
-      |entries=$entries
-      |)""".trimMargin()
+    |  text='$text',
+    |  librariesBlock='$librariesBlock',
+    |  versions=$versions,
+    |  complexEntries=$complexEntries,
+    |  simpleEntries=$simpleEntries,
+    |  entries=$entries
+    |)
+    """.trimMargin()
   }
 }
