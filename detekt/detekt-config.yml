@@ -63,22 +63,22 @@ comments:
     active: false
     endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
   OutdatedDocumentation:
-    active: true
+    active: false
     matchTypeParameters: true
     matchDeclarationsOrder: true
     allowParamOnConstructorProperties: false
   UndocumentedPublicClass:
-    active: true
+    active: false
     excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/integrationTest/**', '**/iosTest/**' ]
     searchInNestedClass: true
     searchInInnerClass: true
     searchInInnerObject: true
     searchInInnerInterface: true
   UndocumentedPublicFunction:
-    active: true
+    active: false
     excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/integrationTest/**', '**/iosTest/**' ]
   UndocumentedPublicProperty:
-    active: true
+    active: false
     excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/integrationTest/**', '**/iosTest/**' ]
 
 complexity:
@@ -513,11 +513,6 @@ style:
     imports:
       - 'com.android.build.*'
       - 'groovy.xml.XmlParser'
-      - 'org.gradle.api.Project'
-      - 'org.gradle.api.artifacts.ProjectDependency'
-      - 'org.gradle.api.artifacts.Configuration'
-      - 'org.gradle.api.tasks.SourceSet'
-      - 'org.gradle.tooling.model.GradleProject'
     forbiddenPatterns: ''
     excludes: [ '**/build-logic/**' ]
   ForbiddenMethodCall:
