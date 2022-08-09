@@ -1,0 +1,57 @@
+[versions]
+android-tools = "7.1.3"
+ben-manes-versions = "0.42.0"
+dependency-guard = "0.3.1"
+dependencyAnalysis = "1.11.0"
+detekt = "1.20.0-RC2"
+dokka = "1.7.10"
+gradle-plugin-publish = "1.0.0"
+hermit = "0.9.6"
+io-kotest = "5.4.1"
+junit5 = "5.9.0"
+kotlin = "1.6.10"
+ktlint-gradle = "10.3.0"
+ktlint-lib = "0.45.2"
+littlerobots-vcu = "0.5.3"
+semver = "1.2.0"
+
+[libraries]
+android-tools-build-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-tools" }
+
+dokka-all-modules-page-plugin = { module = "org.jetbrains.dokka:all-modules-page-plugin", version.ref = "dokka" }
+dokka-analysis = { module = "org.jetbrains.dokka:dokka-analysis", version.ref = "dokka" }
+dokka-base = { module = "org.jetbrains.dokka:dokka-base", version.ref = "dokka" }
+dokka-gfm-template-processing-plugin = { module = "org.jetbrains.dokka:gfm-template-processing-plugin", version.ref = "dokka" }
+dokka-jekyll-template-processing-plugin = { module = "org.jetbrains.dokka:jekyll-template-processing-plugin", version.ref = "dokka" }
+
+hermit-core = { module = "com.rickbusarow.hermit:hermit-core", version.ref = "hermit" }
+hermit-junit5 = { module = "com.rickbusarow.hermit:hermit-junit5", version.ref = "hermit" }
+
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
+
+kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "io-kotest" }
+kotest-assertions-shared = { module = "io.kotest:kotest-assertions-shared", version.ref = "io-kotest" }
+kotest-property-jvm = { module = "io.kotest:kotest-property-jvm", version.ref = "io-kotest" }
+kotest-runner-junit5-jvm = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "io-kotest" }
+
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-scripting-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable", version.ref = "kotlin" }
+
+ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint-lib" }
+ktlint-gradle = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint-gradle" }
+
+semver = { module = "net.swiftzer.semver:semver", version.ref = "semver" }
+
+[plugins]
+ben-manes-versions = { id = "com.github.ben-manes.versions", version.ref = "ben-manes-versions" }
+dependency-guard = { id = "com.dropbox.dependency-guard", version.ref = "dependency-guard" }
+dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
+kotlin-jvm = { id = "kotlin-platform-jvm", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
+littlerobots-vcu = { id = "nl.littlerobots.version-catalog-update", version.ref = "littlerobots-vcu" }

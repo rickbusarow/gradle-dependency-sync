@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rick Busarow
+ * Copyright (C) 2020-2022 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,19 +17,23 @@ pluginManagement {
   repositories {
     gradlePluginPortal()
     mavenCentral()
+    google()
+    maven("https://plugins.gradle.org/m2/")
   }
+}
 
-  resolutionStrategy {
-    eachPlugin {
-      when {
-        requested.id.id.startsWith("org.jetbrains.kotlin") -> useVersion("1.5.20")
-      }
-    }
+dependencyResolutionManagement {
+  @Suppress("UnstableApiUsage")
+  repositories {
+    mavenCentral()
+    google()
+    maven("https://plugins.gradle.org/m2/")
+    mavenLocal()
   }
 }
 
 plugins {
-  id("com.gradle.enterprise").version("3.5.2")
+  id("com.gradle.enterprise").version("3.10.3")
 }
 
 @Suppress("VariableNaming")
@@ -42,26 +46,10 @@ gradleEnterprise {
     termsOfServiceAgree = "yes"
 
     publishAlways()
-
-    tag(if (System.getenv("CI").isNullOrBlank()) "Local" else "CI")
-    tag(VERSION)
-
-    val githubActionID = System.getenv("GITHUB_ACTION")
-
-    if (!githubActionID.isNullOrBlank()) {
-      link(
-        "WorkflowURL",
-        "https://github.com/" +
-          System.getenv("GITHUB_REPOSITORY") +
-          "/pull/" +
-          System.getenv("PR_NUMBER") +
-          "/checks?check_run_id=" +
-          System.getenv("GITHUB_RUN_ID")
-      )
-    }
   }
 }
 
 rootProject.name = "gradle-dependency-sync"
+enableFeaturePreview("VERSION_CATALOGS")
 
 include(":gradle-dependency-sync-plugin")

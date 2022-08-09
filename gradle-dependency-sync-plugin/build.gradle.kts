@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Rick Busarow
+ * Copyright (C) 2020-2022 Rick Busarow
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,30 +13,36 @@
  * limitations under the License.
  */
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   kotlin("jvm")
-  id("com.gradle.plugin-publish") version "0.19.0"
+  alias(libs.plugins.gradle.plugin.publish)
   id("java-gradle-plugin")
   `maven-publish`
+  alias(libs.plugins.dependency.guard)
 }
 
 dependencies {
+  implementation(libs.semver)
 
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
-  implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
-  implementation("net.swiftzer.semver:semver:1.2.0")
-
-  testImplementation("com.rickbusarow.hermit:hermit-junit5:0.9.5")
-  testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.4")
-  testImplementation("io.kotest:kotest-property-jvm:4.6.3")
-  testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.4")
-  testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-  testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.1")
-  testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+  testImplementation(libs.hermit.core)
+  testImplementation(libs.hermit.junit5)
+  testImplementation(libs.kotest.assertions.core.jvm)
+  testImplementation(libs.kotest.assertions.shared)
+  testImplementation(libs.kotest.property.jvm)
+  testImplementation(libs.kotest.runner.junit5.jvm)
+  testImplementation(libs.junit.jupiter.api)
+  testImplementation(libs.junit.jupiter.params)
+  testImplementation(libs.junit.jupiter.engine)
 }
 
 kotlin {
   explicitApi()
+}
+dependencyGuard {
+  configuration("runtimeClasspath") {
+    modules = false
+  }
 }
 
 tasks.withType<Test> {
@@ -57,7 +63,7 @@ tasks.withType<Test> {
     .properties
     .asSequence()
     .filter { (key, value) ->
-      key.startsWith("modulecheck") && value != null
+      key.startsWith("dependency-sync") && value != null
     }
     .forEach { (key, value) ->
       systemProperty(key, value!!)
@@ -79,6 +85,10 @@ java {
   targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+repositories {
+  mavenCentral()
+}
+
 @Suppress("VariableNaming")
 val VERSION: String by extra.properties
 
@@ -87,8 +97,11 @@ gradlePlugin {
     create("dependency-sync") {
       id = "com.rickbusarow.gradle-dependency-sync"
       group = "com.rickbusarow.gradle-dependency-sync"
+      displayName = "Gradle Dependency Sync"
       implementationClass = "dependencysync.gradle.DependencySyncPlugin"
       version = VERSION
+      description =
+        "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
     }
   }
 }
@@ -98,13 +111,7 @@ pluginBundle {
   vcsUrl = "https://github.com/RBusarow/gradle-dependency-sync"
   description =
     "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
-  tags = listOf("dependencies", "dependabot")
-
-  plugins {
-    getByName("dependency-sync") {
-      displayName = "Fast dependency graph validation for gradle"
-    }
-  }
+  tags = listOf("dependencies", "dependabot", "gradle", "android", "kotlin")
 }
 
 tasks.create("setupPluginUploadFromEnvironment") {
@@ -122,3 +129,32 @@ tasks.create("setupPluginUploadFromEnvironment") {
     System.setProperty("gradle.publish.secret", secret)
   }
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>()
+  .configureEach {
+    kotlinOptions {
+      allWarningsAsErrors = false
+
+      val kotlinMajor = "1.5"
+
+      languageVersion = kotlinMajor
+      apiVersion = kotlinMajor
+
+      val javaMajor = "11"
+
+      jvmTarget = javaMajor
+      sourceCompatibility = javaMajor
+      targetCompatibility = javaMajor
+
+      freeCompilerArgs = freeCompilerArgs + listOf(
+        "-Xinline-classes",
+        "-Xjvm-default=enable",
+        "-Xsam-conversions=class",
+        "-opt-in=kotlin.ExperimentalStdlibApi",
+        "-opt-in=kotlin.RequiresOptIn",
+        "-opt-in=kotlin.contracts.ExperimentalContracts",
+        "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+        "-opt-in=kotlinx.coroutines.FlowPreview"
+      )
+    }
+  }

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2020-2022 Rick Busarow
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package dependencysync.gradle
 
 import net.swiftzer.semver.SemVer
@@ -133,8 +148,9 @@ public open class DependencySyncTask @Inject constructor(
 
             project.logger.quiet(
               """updated build file dependency declaration
-                            |      old: $buildFileDep
-                            |      new: $new""".trimMargin()
+              |      old: $buildFileDep
+              |      new: $new
+              """.trimMargin()
             )
           }
 
@@ -162,8 +178,9 @@ public open class DependencySyncTask @Inject constructor(
 
                 project.logger.quiet(
                   """updated build file dependency declaration
-                            |      old: $old
-                            |      new: $new""".trimMargin()
+                  |      old: $old
+                  |      new: $new
+                  """.trimMargin()
                 )
               }
           }
@@ -179,8 +196,9 @@ public open class DependencySyncTask @Inject constructor(
 
           project.logger.quiet(
             """updated Toml dependency declaration
-              |      old: $tomlDep
-              |      new: $buildFileDep""".trimMargin()
+            |      old: $tomlDep
+            |      new: $buildFileDep
+            """.trimMargin()
           )
 
           tomlText = tomlText.replace(originalText, newText)
@@ -224,7 +242,7 @@ public open class DependencySyncTask @Inject constructor(
     missingFromBuildFile.forEach { missingDep ->
       val new = """$prefix$missingDep$suffix
           |$prefix$lastBuildDep$suffix
-        """.trimMargin()
+      """.trimMargin()
       buildText = buildText.replace(lastBuildDepResult.value, new)
 
       project.logger.quiet("added new build file dependency declaration: \t\t $missingDep")
