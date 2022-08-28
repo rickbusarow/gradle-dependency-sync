@@ -12,7 +12,7 @@ junit5 = "5.9.0"
 kotlin = "1.6.10"
 ktlint-gradle = "10.3.0"
 ktlint-lib = "0.45.2"
-littlerobots-vcu = "0.6.0"
+littlerobots-vcu = "0.6.1"
 semver = "1.2.0"
 
 [libraries]
