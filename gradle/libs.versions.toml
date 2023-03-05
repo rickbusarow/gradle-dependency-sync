@@ -1,6 +1,6 @@
 [versions]
 android-tools = "7.3.0"
-ben-manes-versions = "0.42.0"
+ben-manes-versions = "0.46.0"
 dependency-guard = "0.3.1"
 dependencyAnalysis = "1.13.1"
 detekt = "1.20.0-RC2"
