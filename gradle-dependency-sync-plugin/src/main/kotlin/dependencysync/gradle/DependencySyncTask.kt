@@ -39,7 +39,7 @@ public open class DependencySyncTask @Inject constructor(
       """((\S*)\s*=\s*\{\s*module\s*=\s*"([^:]*):(\S*)"\s*,\s*version\.ref\s*=\s*"([^"]*)"\s*\}\s*)""".toRegex()
   }
 
-  @Suppress("NestedBlockDepth")
+  @Suppress("NestedBlockDepth", "LongMethod")
   @TaskAction
   public fun action() {
     val gradleBuildFile = File(settings.gradleBuildFile.get())
@@ -189,7 +189,7 @@ public open class DependencySyncTask @Inject constructor(
         if (buildSemVer > tomlSemVer) {
           val originalText = when (entry) {
             is TomlEntry.Complex -> entry.versionDef.originalText
-            else -> entry.originalText
+            is TomlEntry.Simple -> entry.originalText
           }
 
           val newText = originalText.replace(tomlDep.version, buildFileDep.version)
