@@ -36,6 +36,7 @@ public val DEFAULT_GRADLE_VERSION: String = System
     if (prop.contains('.')) prop else "$prop.0"
   }
 
+@Suppress("UnnecessaryAbstractClass")
 abstract class BaseTest : HermitJUnit5() {
 
   val testProjectDir by tempDir {
@@ -113,6 +114,7 @@ abstract class BaseTest : HermitJUnit5() {
     }
   }
 
+  @Suppress("LongParameterList")
   inline fun test(
     toml: String,
     gradle: String,
