@@ -19,6 +19,7 @@ plugins {
   alias(libs.plugins.gradle.plugin.publish)
   id("java-gradle-plugin")
   `maven-publish`
+  alias(libs.plugins.detekt)
   alias(libs.plugins.dependency.guard)
 }
 
