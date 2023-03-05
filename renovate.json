@@ -4,6 +4,8 @@
     "dependencies",
     "automerge"
   ],
+  "rebaseWhen": "conflicted",
+  "rebaseLabel": "rebase",
   "extends": [
     "config:base"
   ],
@@ -15,6 +17,6 @@
         "^com\\.square\\.anvil:(?:[\\w-]+)$"
       ],
       "groupName": "Kotlin and compiler plugins"
-    },
+    }
   ]
 }
