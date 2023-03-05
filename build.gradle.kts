@@ -55,39 +55,53 @@ versionCatalogUpdate {
   }
 }
 
-detekt {
+allprojects {
 
-  parallel = true
-  config = files("$rootDir/detekt/detekt-config.yml")
-}
+  plugins.apply("io.gitlab.arturbosch.detekt")
 
-tasks.withType<DetektCreateBaselineTask> {
+  configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
 
-  setSource(files(rootDir))
-
-  include("**/*.kt", "**/*.kts")
-  exclude("**/resources/**", "**/build/**", "**/src/test/java**")
-
-  // Target version of the generated JVM bytecode. It is used for type resolution.
-  this.jvmTarget = "1.8"
-}
-
-tasks.withType<Detekt> {
-
-  setSource(files(rootDir))
-
-  reports {
-    xml.required.set(true)
-    html.required.set(true)
-    txt.required.set(false)
-    sarif.required.set(true)
+    parallel = true
+    config = files("$rootDir/detekt/detekt-config.yml")
   }
 
-  include("**/*.kt", "**/*.kts")
-  exclude("**/resources/**", "**/build/**", "**/src/test/java**", "**/src/test/kotlin**")
+  tasks.register("detektAll", Detekt::class.java) detektAll@{
+    description = "runs the standard PSI Detekt as well as all type resolution tasks"
 
-  // Target version of the generated JVM bytecode. It is used for type resolution.
-  this.jvmTarget = "1.8"
+    dependsOn(
+      tasks.withType(Detekt::class.java)
+        .matching { it != this@detektAll }
+    )
+  }
+
+  tasks.withType<DetektCreateBaselineTask> {
+
+    setSource(files(rootDir))
+
+    include("**/*.kt", "**/*.kts")
+    exclude("**/resources/**", "**/build/**", "**/src/test/java**")
+
+    // Target version of the generated JVM bytecode. It is used for type resolution.
+    this.jvmTarget = "1.8"
+  }
+
+  tasks.withType<Detekt> {
+
+    setSource(files(rootDir))
+
+    reports {
+      xml.required.set(true)
+      html.required.set(true)
+      txt.required.set(false)
+      sarif.required.set(true)
+    }
+
+    include("**/*.kt", "**/*.kts")
+    exclude("**/resources/**", "**/build/**", "**/src/test/java**", "**/src/test/kotlin**")
+
+    // Target version of the generated JVM bytecode. It is used for type resolution.
+    this.jvmTarget = "1.8"
+  }
 }
 
 fun isNonStable(version: String): Boolean {
