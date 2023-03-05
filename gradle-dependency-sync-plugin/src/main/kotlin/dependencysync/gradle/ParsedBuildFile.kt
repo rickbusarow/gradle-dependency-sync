@@ -26,12 +26,16 @@ internal data class ParsedBuildFile(
     internal fun create(
       dependencySyncConfig: Configuration
     ): ParsedBuildFile {
+
       val buildFileDeps = dependencySyncConfig.dependencies
-        .filter { it.version != null }
-        .map { Dep(it.group!!, it.name, it.version!!) }
+        .mapNotNull { dependency ->
+          val group = dependency.group ?: return@mapNotNull null
+          val version = dependency.version ?: return@mapNotNull null
+          Dep(group = group, name = dependency.name, version = version)
+        }
         .groupBy { it.group + it.name }
         .values
-        .map { depsByArtifact -> depsByArtifact.maxByOrNull { it.version }!! }
+        .mapNotNull { depsByArtifact -> depsByArtifact.maxByOrNull { it.version } }
 
       val groupedBuildFileDeps = buildFileDeps
         .groupBy { it.group }
