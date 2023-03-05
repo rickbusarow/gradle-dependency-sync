@@ -1,17 +1,17 @@
 /*
- * Copyright (C) 2020-2022 Rick Busarow
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2020-2022 Rick Busarow
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -21,6 +21,7 @@ plugins {
   `maven-publish`
   alias(libs.plugins.detekt)
   alias(libs.plugins.dependency.guard)
+  alias(libs.plugins.ktlint)
 }
 
 dependencies {
@@ -79,13 +80,6 @@ val buildTests by tasks.registering {
   dependsOn("testClasses")
 }
 
-java {
-  // force Java 8 source when building java-only artifacts.
-  // This is different than the Kotlin jvm target.
-  sourceCompatibility = JavaVersion.VERSION_1_8
-  targetCompatibility = JavaVersion.VERSION_1_8
-}
-
 repositories {
   mavenCentral()
 }
@@ -93,9 +87,14 @@ repositories {
 @Suppress("VariableNaming")
 val VERSION: String by extra.properties
 
+@Suppress("UnstableApiUsage")
 gradlePlugin {
+
+  website.set("https://github.com/RBusarow/gradle-dependency-sync")
+  vcsUrl.set("https://github.com/RBusarow/gradle-dependency-sync")
+
   plugins {
-    create("dependency-sync") {
+    register("dependency-sync") {
       id = "com.rickbusarow.gradle-dependency-sync"
       group = "com.rickbusarow.gradle-dependency-sync"
       displayName = "Gradle Dependency Sync"
@@ -103,16 +102,10 @@ gradlePlugin {
       version = VERSION
       description =
         "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
+
+      tags.set(listOf("dependencies", "dependabot", "gradle", "android", "kotlin"))
     }
   }
-}
-
-pluginBundle {
-  website = "https://github.com/RBusarow/gradle-dependency-sync"
-  vcsUrl = "https://github.com/RBusarow/gradle-dependency-sync"
-  description =
-    "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
-  tags = listOf("dependencies", "dependabot", "gradle", "android", "kotlin")
 }
 
 tasks.create("setupPluginUploadFromEnvironment") {
@@ -131,12 +124,18 @@ tasks.create("setupPluginUploadFromEnvironment") {
   }
 }
 
+extensions.configure(org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension::class.java) {
+  jvmToolchain {
+    languageVersion.set(JavaLanguageVersion.of(11))
+  }
+}
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>()
   .configureEach {
     kotlinOptions {
       allWarningsAsErrors = false
 
-      val kotlinMajor = "1.5"
+      val kotlinMajor = "1.6"
 
       languageVersion = kotlinMajor
       apiVersion = kotlinMajor
@@ -144,8 +143,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>()
       val javaMajor = "11"
 
       jvmTarget = javaMajor
-      sourceCompatibility = javaMajor
-      targetCompatibility = javaMajor
 
       freeCompilerArgs = freeCompilerArgs + listOf(
         "-Xinline-classes",

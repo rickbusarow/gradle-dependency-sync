@@ -36,9 +36,6 @@ plugins {
   id("com.gradle.enterprise").version("3.12.4")
 }
 
-@Suppress("VariableNaming")
-val VERSION: String by extra.properties
-
 gradleEnterprise {
   buildScan {
 
@@ -50,6 +47,5 @@ gradleEnterprise {
 }
 
 rootProject.name = "gradle-dependency-sync"
-enableFeaturePreview("VERSION_CATALOGS")
 
 include(":gradle-dependency-sync-plugin")

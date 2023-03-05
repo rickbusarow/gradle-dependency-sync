@@ -19,7 +19,6 @@ import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 buildscript {
   dependencies {
     classpath(libs.kotlin.gradle.plugin)
-    classpath(libs.ktlint.gradle)
   }
 }
 
@@ -30,6 +29,7 @@ plugins {
   alias(libs.plugins.dependencyAnalysis)
   alias(libs.plugins.detekt)
   alias(libs.plugins.dokka)
+  alias(libs.plugins.ktlint)
   base
 }
 
@@ -76,18 +76,11 @@ allprojects {
 
   tasks.withType<DetektCreateBaselineTask> {
 
-    setSource(files(rootDir))
-
     include("**/*.kt", "**/*.kts")
     exclude("**/resources/**", "**/build/**", "**/src/test/java**")
-
-    // Target version of the generated JVM bytecode. It is used for type resolution.
-    this.jvmTarget = "1.8"
   }
 
   tasks.withType<Detekt> {
-
-    setSource(files(rootDir))
 
     reports {
       xml.required.set(true)
@@ -100,12 +93,12 @@ allprojects {
     exclude("**/resources/**", "**/build/**", "**/src/test/java**", "**/src/test/kotlin**")
 
     // Target version of the generated JVM bytecode. It is used for type resolution.
-    this.jvmTarget = "1.8"
+    this.jvmTarget = "11"
   }
 }
 
 fun isNonStable(version: String): Boolean {
-  val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
+  val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
   val regex = "^[0-9,.v-]+(-r)?$".toRegex()
   val isStable = stableKeyword || regex.matches(version)
   return isStable.not()
@@ -122,25 +115,20 @@ tasks.named(
 
 allprojects {
 
-  apply(plugin = "org.jlleitschuh.gradle.ktlint")
+  plugins.withId("org.jlleitschuh.gradle.ktlint") {
 
-  configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    debug.set(false)
-    version.set("0.45.2")
-    outputToConsole.set(true)
-    enableExperimentalRules.set(true)
-    disabledRules.set(
-      setOf(
-        "max-line-length", // manually formatting still does this, and KTLint will still wrap long chains when possible
-        "filename", // same as Detekt's MatchingDeclarationName, but Detekt's version can be suppressed and this can't
-        "experimental:argument-list-wrapping", // doesn't work half the time
-        "experimental:no-empty-first-line-in-method-block", // code golf...
-        // This can be re-enabled once 0.46.0 is released
-        // https://github.com/pinterest/ktlint/issues/1435
-        "experimental:type-parameter-list-spacing",
-        // added in 0.46.0
-        "experimental:function-signature"
-      )
-    )
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+      debug.set(false)
+
+      val ktlintVersion = extensions
+        .getByType(VersionCatalogsExtension::class.java)
+        .named("libs")
+        .findVersion("ktlint-lib")
+        .get().requiredVersion
+
+      version.set(ktlintVersion)
+      outputToConsole.set(true)
+      enableExperimentalRules.set(true)
+    }
   }
 }
