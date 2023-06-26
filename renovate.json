@@ -13,8 +13,11 @@
     {
       "matchPackagePatterns": [
         "^org\\.jetbrains\\.kotlin:(?:[\\w-]+)$",
+        "^org\\.jetbrains\\.kotlinx:atomicfu(?:-[\\w-])*$",
+        "^org\\.jetbrains\\.kotlinx:kotlinx-metadata(?:-[\\w-])*$",
+        "^org\\.jetbrains\\.kotlinx:binary(?:-[\\w-])*$",
         "^com\\.google\\.devtools\\.ksp:(?:[\\w-]+)$",
-        "^com\\.square\\.anvil:(?:[\\w-]+)$"
+        "^com\\.squareup\\.anvil:(?:[\\w-]+)$"
       ],
       "groupName": "Kotlin and compiler plugins"
     }
