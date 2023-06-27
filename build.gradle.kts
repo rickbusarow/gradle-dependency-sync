@@ -40,7 +40,6 @@ allprojects {
   }
 }
 
-
 allprojects {
 
   plugins.apply("io.gitlab.arturbosch.detekt")
