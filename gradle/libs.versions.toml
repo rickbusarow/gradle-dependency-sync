@@ -7,7 +7,7 @@ kotlinApi = "1.6"
 
 android-tools = "7.4.2"
 ben-manes-versions = "0.46.0"
-dependency-guard = "0.4.1"
+dependency-guard = "0.4.3"
 dependencyAnalysis = "1.20.0"
 detekt = "1.20.0-RC2"
 dokka = "1.8.10"
