@@ -1,18 +1,25 @@
 [versions]
+# the jdk used to build the project
+jdk = "17"
+# the jdk used in packaging
+jvmTarget = "11"
+kotlinApi = "1.6"
+
 android-tools = "7.4.2"
 ben-manes-versions = "0.46.0"
 dependency-guard = "0.4.1"
 dependencyAnalysis = "1.20.0"
 detekt = "1.20.0-RC2"
 dokka = "1.8.10"
-gradle-plugin-publish = "1.1.0"
+gradle-plugin-publish = "1.2.0"
 hermit = "0.9.6"
 io-kotest = "5.5.5"
 junit5 = "5.9.2"
-kotlin = "1.6.10"
-ktlint-gradle = "11.3.1"
-ktlint-lib = "0.48.2"
+kotlin = "1.8.10"
 littlerobots-vcu = "0.7.0"
+rickBusarow-doks = "0.1.4"
+rickBusarow-ktlint = "0.1.7"
+rickBusarow-ktrules = "1.1.2"
 semver = "1.2.0"
 
 [libraries]
@@ -40,8 +47,9 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-scripting-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable", version.ref = "kotlin" }
 
-ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint-lib" }
-ktlint-gradle = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint-gradle" }
+rickBusarow-doks = { module = "com.rickbusarow.doks:doks-gradle-plugin", version.ref = "rickBusarow-doks" }
+rickBusarow-ktlint = { module = "com.rickbusarow.ktlint:ktlint-gradle-plugin", version.ref = "rickBusarow-ktlint" }
+rickBusarow-ktrules = { module = "com.rickbusarow.ktrules:ktrules", version.ref = "rickBusarow-ktrules" }
 
 semver = { module = "net.swiftzer.semver:semver", version.ref = "semver" }
 
@@ -51,7 +59,8 @@ dependency-guard = { id = "com.dropbox.dependency-guard", version.ref = "depende
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+doks = { id = "com.rickbusarow.doks", version.ref = "rickBusarow-doks" }
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
 kotlin-jvm = { id = "kotlin-platform-jvm", version.ref = "kotlin" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
+ktlint = { id = "com.rickbusarow.ktlint", version.ref = "rickBusarow-ktlint" }
 littlerobots-vcu = { id = "nl.littlerobots.version-catalog-update", version.ref = "littlerobots-vcu" }

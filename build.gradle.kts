@@ -14,44 +14,29 @@
  */
 
 import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.text.RegexOption.MULTILINE
 
 buildscript {
   dependencies {
     classpath(libs.kotlin.gradle.plugin)
-    classpath(libs.ktlint.gradle)
   }
 }
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-  alias(libs.plugins.littlerobots.vcu)
   alias(libs.plugins.ben.manes.versions)
   alias(libs.plugins.dependencyAnalysis)
   alias(libs.plugins.detekt)
   alias(libs.plugins.dokka)
+  alias(libs.plugins.doks)
+  alias(libs.plugins.ktlint) apply false
   base
 }
 
-versionCatalogUpdate {
-  // sort the catalog by key (default is true)
-  sortByKey.set(false)
-  // Referenced that are pinned are not automatically updated.
-  // They are also not automatically kept however (use keep for that).
-  pin {
-    // pins all libraries and plugins using the given versions
-    // versions.add("my-version-name")
-
-    // pins all libraries (not plugins) for the given groups
-    // groups.add("com.somegroup")
-  }
-  keep {
-    // versions.add("my-version-name")
-    // groups.add("com.somegroup")
-
-    keepUnusedVersions.set(true)
-    keepUnusedLibraries.set(true)
-    keepUnusedPlugins.set(false)
+allprojects {
+  tasks.register("fix") {
+    dependsOn("ktlintFormat", "doks")
+    dependsOn(tasks.matching { it.name == "dependencyGuardBaseline" })
   }
 }
 
@@ -74,20 +59,7 @@ allprojects {
     )
   }
 
-  tasks.withType<DetektCreateBaselineTask> {
-
-    setSource(files(rootDir))
-
-    include("**/*.kt", "**/*.kts")
-    exclude("**/resources/**", "**/build/**", "**/src/test/java**")
-
-    // Target version of the generated JVM bytecode. It is used for type resolution.
-    this.jvmTarget = "1.8"
-  }
-
-  tasks.withType<Detekt> {
-
-    setSource(files(rootDir))
+  tasks.withType<Detekt>().configureEach {
 
     reports {
       xml.required.set(true)
@@ -96,16 +68,13 @@ allprojects {
       sarif.required.set(true)
     }
 
-    include("**/*.kt", "**/*.kts")
-    exclude("**/resources/**", "**/build/**", "**/src/test/java**", "**/src/test/kotlin**")
-
     // Target version of the generated JVM bytecode. It is used for type resolution.
-    this.jvmTarget = "1.8"
+    this.jvmTarget = libs.versions.jvmTarget.get()
   }
 }
 
 fun isNonStable(version: String): Boolean {
-  val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
+  val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
   val regex = "^[0-9,.v-]+(-r)?$".toRegex()
   val isStable = stableKeyword || regex.matches(version)
   return isStable.not()
@@ -122,25 +91,69 @@ tasks.named(
 
 allprojects {
 
-  apply(plugin = "org.jlleitschuh.gradle.ktlint")
+  tasks.withType<KotlinCompile>()
+    .configureEach {
+      kotlinOptions {
 
-  configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-    debug.set(false)
-    version.set("0.45.2")
-    outputToConsole.set(true)
-    enableExperimentalRules.set(true)
-    disabledRules.set(
-      setOf(
-        "max-line-length", // manually formatting still does this, and KTLint will still wrap long chains when possible
-        "filename", // same as Detekt's MatchingDeclarationName, but Detekt's version can be suppressed and this can't
-        "experimental:argument-list-wrapping", // doesn't work half the time
-        "experimental:no-empty-first-line-in-method-block", // code golf...
-        // This can be re-enabled once 0.46.0 is released
-        // https://github.com/pinterest/ktlint/issues/1435
-        "experimental:type-parameter-list-spacing",
-        // added in 0.46.0
-        "experimental:function-signature"
-      )
+        allWarningsAsErrors = false
+
+        val kotlinMajor = libs.versions.kotlinApi.get()
+
+        languageVersion = kotlinMajor
+        apiVersion = kotlinMajor
+
+        jvmTarget = libs.versions.jvmTarget.get()
+
+        freeCompilerArgs += listOf(
+          "-Xjvm-default=all",
+          "-Xallow-result-return-type",
+          "-opt-in=kotlin.contracts.ExperimentalContracts",
+          "-opt-in=kotlin.time.ExperimentalTime",
+          "-opt-in=kotlin.RequiresOptIn",
+          "-Xinline-classes"
+        )
+      }
+    }
+}
+
+@Suppress("VariableNaming", "PropertyName")
+val VERSION: String by extra.properties
+val ktrules = libs.rickBusarow.ktrules.get()
+
+allprojects {
+  apply(plugin = "com.rickbusarow.ktlint")
+
+  val target = this@allprojects
+
+  target.dependencies {
+    "ktlint"(ktrules)
+  }
+
+  target.tasks.withType(com.rickbusarow.ktlint.KtLintTask::class.java).configureEach {
+    dependsOn(":updateEditorConfigVersion")
+    mustRunAfter(
+      target.tasks.matching { it.name == "apiDump" },
+      target.tasks.matching { it.name == "dependencyGuard" },
+      target.tasks.matching { it.name == "dependencyGuardBaseline" }
+      // target.tasks.withType(KotlinApiBuildTask::class.java),
+      // target.tasks.withType(KotlinApiCompareTask::class.java)
     )
+  }
+}
+
+tasks.register("updateEditorConfigVersion") {
+
+  val file = file(".editorconfig")
+
+  doLast {
+    val oldText = file.readText()
+
+    val reg = """^(ktlint_kt-rules_project_version *?= *?)\S*$""".toRegex(MULTILINE)
+
+    val newText = oldText.replace(reg, "$1$VERSION")
+
+    if (newText != oldText) {
+      file.writeText(newText)
+    }
   }
 }

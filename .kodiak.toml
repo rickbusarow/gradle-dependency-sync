@@ -26,12 +26,12 @@ notify_on_conflict = false # default: true
 [merge.automerge_dependencies]
 # auto merge all PRs opened by "dependabot" that are "minor" or "patch" version upgrades. "major" version upgrades will be ignored.
 versions = ["minor", "patch"]
-usernames = ["dependabot"]
+usernames = ["dependabot", "renovate"]
 
 [approve]
 # note: remove the "[bot]" suffix from GitHub Bot usernames.
 # Instead of "dependabot[bot]" use "dependabot".
-auto_approve_usernames = ["RBusarow"]
+auto_approve_usernames = ["RBusarow", "renovate"]
 
 [merge.message]
 # use title of PR for merge commit.
