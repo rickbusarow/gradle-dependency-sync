@@ -73,7 +73,7 @@ tasks.withType<Test>().configureEach {
 kotlin {
   jvmToolchain(libs.versions.jvmTarget.get().toInt())
 }
-tasks.withType(JavaCompile::class.java) {
+tasks.withType(JavaCompile::class.java).configureEach {
   options.release.set(libs.versions.jvmTarget.get().toInt())
   val targetString = JavaVersion.values()
     .single { it.majorVersion == libs.versions.jvmTarget.get() }
