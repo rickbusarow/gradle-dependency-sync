@@ -2,7 +2,7 @@
 # the jdk used to build the project
 jdk = "17"
 # the jdk used in packaging
-jvmTarget = "8"
+jvmTarget = "11"
 kotlinApi = "1.6"
 
 android-tools = "7.4.2"

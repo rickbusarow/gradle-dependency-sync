@@ -40,6 +40,7 @@ allprojects {
   }
 }
 
+
 allprojects {
 
   plugins.apply("io.gitlab.arturbosch.detekt")
@@ -69,7 +70,7 @@ allprojects {
     }
 
     // Target version of the generated JVM bytecode. It is used for type resolution.
-    this.jvmTarget = "1.8"
+    this.jvmTarget = libs.versions.jvmTarget.get()
   }
 }
 
@@ -97,14 +98,12 @@ allprojects {
 
         allWarningsAsErrors = false
 
-        val kotlinMajor = "1.6"
+        val kotlinMajor = libs.versions.kotlinApi.get()
 
         languageVersion = kotlinMajor
         apiVersion = kotlinMajor
 
-        val javaMajor = "1.8"
-
-        jvmTarget = javaMajor
+        jvmTarget = libs.versions.jvmTarget.get()
 
         freeCompilerArgs += listOf(
           "-Xjvm-default=all",
