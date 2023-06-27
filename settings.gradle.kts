@@ -33,7 +33,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-  id("com.gradle.enterprise").version("3.12.4")
+  id("com.gradle.enterprise") version "3.12.4"
 }
 
 @Suppress("VariableNaming")
@@ -50,6 +50,5 @@ gradleEnterprise {
 }
 
 rootProject.name = "gradle-dependency-sync"
-enableFeaturePreview("VERSION_CATALOGS")
 
 include(":gradle-dependency-sync-plugin")
