@@ -153,7 +153,8 @@ class IntegrationTests : BaseTest() {
 
     buildResult.shouldSucceed()
 
-    buildResult.output shouldContain "added new build file dependency declaration: \t\t androidx.activity:activity-ktx:1.2.3"
+    buildResult.output shouldContain "added new build file dependency declaration: " +
+      "\t\t androidx.activity:activity-ktx:1.2.3"
 
     buildText() shouldBe """
       plugins {

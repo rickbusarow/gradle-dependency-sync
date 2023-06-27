@@ -1,19 +1,18 @@
 /*
- * Copyright (C) 2020-2022 Rick Busarow
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2020-2022 Rick Busarow
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   kotlin("jvm")
   alias(libs.plugins.gradle.plugin.publish)
@@ -46,7 +45,7 @@ dependencyGuard {
   }
 }
 
-tasks.withType<Test> {
+tasks.withType<Test>().configureEach {
   useJUnitPlatform()
 
   testLogging {
@@ -71,6 +70,17 @@ tasks.withType<Test> {
     }
 }
 
+kotlin {
+  jvmToolchain(libs.versions.jvmTarget.get().toInt())
+}
+tasks.withType(JavaCompile::class.java) {
+  options.release.set(libs.versions.jvmTarget.get().toInt())
+  val targetString = JavaVersion.values()
+    .single { it.majorVersion == libs.versions.jvmTarget.get() }
+    .toString()
+
+  targetCompatibility = targetString
+}
 val testJvm by tasks.registering {
   dependsOn("test")
 }
@@ -79,21 +89,15 @@ val buildTests by tasks.registering {
   dependsOn("testClasses")
 }
 
-java {
-  // force Java 8 source when building java-only artifacts.
-  // This is different than the Kotlin jvm target.
-  sourceCompatibility = JavaVersion.VERSION_1_8
-  targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-repositories {
-  mavenCentral()
-}
-
-@Suppress("VariableNaming")
+@Suppress("VariableNaming", "PropertyName")
 val VERSION: String by extra.properties
 
+@Suppress("UnstableApiUsage")
 gradlePlugin {
+
+  website.set("https://github.com/RBusarow/gradle-dependency-sync")
+  vcsUrl.set("https://github.com/RBusarow/gradle-dependency-sync")
+
   plugins {
     create("dependency-sync") {
       id = "com.rickbusarow.gradle-dependency-sync"
@@ -105,14 +109,6 @@ gradlePlugin {
         "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
     }
   }
-}
-
-pluginBundle {
-  website = "https://github.com/RBusarow/gradle-dependency-sync"
-  vcsUrl = "https://github.com/RBusarow/gradle-dependency-sync"
-  description =
-    "Automatically sync dependency declarations between a build.gradle.kts file and a .toml file"
-  tags = listOf("dependencies", "dependabot", "gradle", "android", "kotlin")
 }
 
 tasks.create("setupPluginUploadFromEnvironment") {
@@ -130,32 +126,3 @@ tasks.create("setupPluginUploadFromEnvironment") {
     System.setProperty("gradle.publish.secret", secret)
   }
 }
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>()
-  .configureEach {
-    kotlinOptions {
-      allWarningsAsErrors = false
-
-      val kotlinMajor = "1.5"
-
-      languageVersion = kotlinMajor
-      apiVersion = kotlinMajor
-
-      val javaMajor = "11"
-
-      jvmTarget = javaMajor
-      sourceCompatibility = javaMajor
-      targetCompatibility = javaMajor
-
-      freeCompilerArgs = freeCompilerArgs + listOf(
-        "-Xinline-classes",
-        "-Xjvm-default=enable",
-        "-Xsam-conversions=class",
-        "-opt-in=kotlin.ExperimentalStdlibApi",
-        "-opt-in=kotlin.RequiresOptIn",
-        "-opt-in=kotlin.contracts.ExperimentalContracts",
-        "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-        "-opt-in=kotlinx.coroutines.FlowPreview"
-      )
-    }
-  }

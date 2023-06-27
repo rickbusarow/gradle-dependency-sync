@@ -23,9 +23,7 @@ internal data class ParsedBuildFile(
 ) {
   internal companion object {
 
-    internal fun create(
-      dependencySyncConfig: Configuration
-    ): ParsedBuildFile {
+    internal fun create(dependencySyncConfig: Configuration): ParsedBuildFile {
 
       val buildFileDeps = dependencySyncConfig.dependencies
         .mapNotNull { dependency ->
