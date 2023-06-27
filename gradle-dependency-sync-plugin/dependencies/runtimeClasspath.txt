@@ -1,6 +1,6 @@
 net.swiftzer.semver:semver:1.2.0
-org.jetbrains.kotlin:kotlin-stdlib-common:1.6.10
-org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.10
-org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10
-org.jetbrains.kotlin:kotlin-stdlib:1.6.10
+org.jetbrains.kotlin:kotlin-stdlib-common:1.8.10
+org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.10
+org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10
+org.jetbrains.kotlin:kotlin-stdlib:1.8.10
 org.jetbrains:annotations:13.0
