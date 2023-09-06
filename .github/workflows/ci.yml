@@ -76,7 +76,7 @@ jobs:
           path: ${{ github.workspace }}/**/build/reports/tests/
 
       - name: Unit test results
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@v4
         if: failure()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
