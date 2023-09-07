@@ -6,7 +6,7 @@ jvmTarget = "11"
 kotlinApi = "1.6"
 
 android-tools = "8.1.0"
-ben-manes-versions = "0.47.0"
+ben-manes-versions = "0.48.0"
 dependency-guard = "0.4.3"
 dependencyAnalysis = "1.21.0"
 detekt = "1.23.1"
