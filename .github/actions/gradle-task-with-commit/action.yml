@@ -43,7 +43,7 @@ runs:
 
     # ensure that we have the actual branch checked out.  By default, actions/checkout is headless.
     - name: check out with PAT
-      uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
       if: steps.can-push.outputs.can_push == 'true'
       with:
         token: ${{ inputs.personal-access-token }}
