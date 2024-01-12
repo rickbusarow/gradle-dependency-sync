@@ -18,9 +18,21 @@ junit5 = "5.10.1"
 kotlin = "1.9.22"
 littlerobots-vcu = "0.8.3"
 rickBusarow-doks = "0.1.4"
+ktlint-lib = "1.1.1"
 rickBusarow-ktlint = "0.2.2"
-rickBusarow-ktrules = "1.1.2"
+rickBusarow-ktrules = "1.3.1"
 semver = "1.3.0"
+
+[plugins]
+ben-manes-versions = { id = "com.github.ben-manes.versions", version.ref = "ben-manes-versions" }
+dependency-guard = { id = "com.dropbox.dependency-guard", version.ref = "dependency-guard" }
+dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+doks = { id = "com.rickbusarow.doks", version.ref = "rickBusarow-doks" }
+gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
+ktlint = { id = "com.rickbusarow.ktlint", version.ref = "rickBusarow-ktlint" }
+littlerobots-vcu = { id = "nl.littlerobots.version-catalog-update", version.ref = "littlerobots-vcu" }
 
 [libraries]
 android-tools-build-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-tools" }
@@ -46,21 +58,10 @@ kotest-runner-junit5-jvm = { module = "io.kotest:kotest-runner-junit5-jvm", vers
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-scripting-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable", version.ref = "kotlin" }
+ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint-lib" }
 
 rickBusarow-doks = { module = "com.rickbusarow.doks:doks-gradle-plugin", version.ref = "rickBusarow-doks" }
 rickBusarow-ktlint = { module = "com.rickbusarow.ktlint:ktlint-gradle-plugin", version.ref = "rickBusarow-ktlint" }
 rickBusarow-ktrules = { module = "com.rickbusarow.ktrules:ktrules", version.ref = "rickBusarow-ktrules" }
 
 semver = { module = "net.swiftzer.semver:semver", version.ref = "semver" }
-
-[plugins]
-ben-manes-versions = { id = "com.github.ben-manes.versions", version.ref = "ben-manes-versions" }
-dependency-guard = { id = "com.dropbox.dependency-guard", version.ref = "dependency-guard" }
-dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-doks = { id = "com.rickbusarow.doks", version.ref = "rickBusarow-doks" }
-gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
-kotlin-jvm = { id = "kotlin-platform-jvm", version.ref = "kotlin" }
-ktlint = { id = "com.rickbusarow.ktlint", version.ref = "rickBusarow-ktlint" }
-littlerobots-vcu = { id = "nl.littlerobots.version-catalog-update", version.ref = "littlerobots-vcu" }
