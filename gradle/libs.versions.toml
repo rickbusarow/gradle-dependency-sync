@@ -5,7 +5,7 @@ jdk = "17"
 jvmTarget = "11"
 kotlinApi = "1.6"
 
-android-tools = "8.2.2"
+android-tools = "8.3.0"
 ben-manes-versions = "0.51.0"
 dependency-guard = "0.5.0"
 dependencyAnalysis = "1.30.0"
